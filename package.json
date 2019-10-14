@@ -1,0 +1,40 @@
+{
+  "name": "@cryb/portals",
+  "version": "1.0.0",
+  "description": "The microservice that queues, creates and closes VM instances",
+  "main": "index.js",
+  "repository": "https://github.com/crybapp/portals",
+  "author": "William Gibson <w.gibbo3@icloud.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "node dist",
+    "dev": "tsc-watch --outDir ./dist --onSuccess \"yarn start\" --compiler typescript/bin/tsc",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@google-cloud/compute": "^1.1.5",
+    "@kubernetes/client-node": "^0.10.2",
+    "aws-sdk": "^2.535.0",
+    "axios": "^0.19.0",
+    "biguint-format": "^1.0.1",
+    "dotenv": "^8.1.0",
+    "express": "^4.17.1",
+    "flake-idgen": "^1.1.2",
+    "google-auth-library": "^5.2.1",
+    "ioredis": "^4.14.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.6.11",
+    "morgan": "^1.9.1",
+    "vultr": "^0.0.9"
+  },
+  "devDependencies": {
+    "@types/dotenv": "^6.1.1",
+    "@types/express": "^4.17.1",
+    "@types/ioredis": "^4.0.17",
+    "@types/jsonwebtoken": "^8.3.3",
+    "@types/mongoose": "^5.5.13",
+    "@types/morgan": "^1.7.37",
+    "@types/redis": "^2.8.13",
+    "@types/ws": "^6.0.3"
+  }
+}
