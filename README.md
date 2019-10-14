@@ -1,4 +1,4 @@
-![Cryb OSS](.github/cryb.png "Cryb OSS Logo")
+![Cryb OSS](.github/portals-icon.png "@cryb/portals Logo")
 
 _**Portals** - VM microservice_
 
