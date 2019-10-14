@@ -34,13 +34,14 @@ MongoDB is used as the primary database, while Redis is used for cache and PUB/S
 ```
 cryb/portals/
 └──┐ src # The core source code
-   ├── config # Config files for Redis, Passport, etc
+   ├──┐ config # Config files for Redis, Passport, etc
+   │  └── providers # Config files for the provider APIs, such as Google Cloud, Kubernetes, etc.
    ├── controllers # Our REST route controller files
-   ├── drivers # Methods used to talk to other microservices, such as @cryb/portals
-   ├── models # Models for our a data types, such as users and rooms
+   ├── drivers # Methods used to deploy Portal instances
+   ├── models # Models for our a data types, such as portals and requests
    ├── schemas # Mongoose schema files
-   ├── server # Our Express.js setup
-   ├── services # Abstractions for Oauth2, etc
+   ├── server # Our Express.js setup and WebSocket setup
+   ├── services # Services such as queue management, etc
    └── utils # Helper methods
 ```
 
