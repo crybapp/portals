@@ -36,9 +36,9 @@ export const openPortalInstance = async (portal: Portal) => {
         case 'kubernetes':
             openK8SPortalInstance(portal)
             break
-		case 'manual':
+        case 'manual':
             openManualPortalInstance(portal)
-			break
+            break
         case 'digitalocean':
             openDigitalOceanPortalInstance(portal)
             break
@@ -56,9 +56,9 @@ export const closePortalInstance = async (portal: Portal) => {
         case 'kubernetes':
             closeK8SPortalInstance(portal)
             break
-		case 'manual':
+        case 'manual':
             closeManualPortalInstance(portal)
-			break
+            break
         case 'digitalocean':
             closeDigitalOceanPortalInstance(portal)
             break
