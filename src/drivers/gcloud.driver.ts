@@ -1,13 +1,16 @@
 import Portal from '../models/portal'
 
-import gcloud, { credentials } from '../config/providers/gcloud.config'
+import { createClient, fetchCredentials } from '../config/providers/gcloud.config'
 import { closePortal } from './portal.driver'
 
-const { project_id: projectId } = credentials,
+const gcloud = createClient(),
+        { project_id: projectId } = fetchCredentials() || { project_id: null },
         zoneId = 'us-east1-b',
         baseUrl = `https://www.googleapis.com/compute/v1/projects/${projectId}/zones/${zoneId}/`
 
 export const openPortalInstance = async (portal: Portal) => {
+    if(!gcloud) throw 'The Google Cloud driver is incorrect. This may be due to improper ENV variables, please try again'
+
     const portalName = `portal-${portal.id}`
 
     try {
@@ -33,6 +36,8 @@ export const openPortalInstance = async (portal: Portal) => {
 }
 
 export const closePortalInstance = async (portal: Portal) => {
+    if(!gcloud) throw 'The Google Cloud driver is incorrect. This may be due to improper ENV variables, please try again'
+
     const portalName = `portal-${portal.id}`
 
     try {
