@@ -10,9 +10,14 @@ import {
     closePortalInstance as closeK8SPortalInstance
 } from './kubernetes.driver'
 
-type Driver = 'gcloud' | 'kubernetes'
+import {
+    openPortalInstance as openManualPortalInstance,
+    closePortalInstance as closeManualPortalInstance
+} from './manual.driver'
 
-const fetchCurrentDriver = () => 'kubernetes' as Driver
+type Driver = 'gcloud' | 'kubernetes' | 'manual'
+
+const fetchCurrentDriver = () => 'manual' as Driver
 
 export const openPortalInstance = async (portal: Portal) => {
     const driver = await fetchCurrentDriver()
@@ -24,6 +29,9 @@ export const openPortalInstance = async (portal: Portal) => {
             break
         case 'kubernetes':
             openK8SPortalInstance(portal)
+            break
+        case 'manual':
+            openManualPortalInstance(portal)
             break
     }
 }
@@ -38,6 +46,9 @@ export const closePortalInstance = async (portal: Portal) => {
             break
         case 'kubernetes':
             closeK8SPortalInstance(portal)
+            break
+        case 'manual':
+            closeManualPortalInstance(portal)
             break
     }
 }

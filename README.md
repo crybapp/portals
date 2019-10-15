@@ -100,22 +100,23 @@ yarn dev
 ### Adding a custom provider
 `@cryb/portals` makes it easy to add a custom cloud provider to deploy Portal instances onto.
 
-1. First, make a config file under `src/config/providers`. You want to call this `foo.config.ts`. This file should export the API of the provider you want to use. See `gcloud.config.ts` for an example of how Google Cloud intergration is handled.
+1. First, make a config file under `src/config/providers`. You want to call this `foo.config.ts`. This file should export a method that returns the API of the provider you want to use. See `example.config.ts` or `gcloud.config.ts` for an example of how Google Cloud intergration is handled.
 2. Next, make a file under `src/drivers`. You want to call this `foo.driver.ts`. You can copy the code in `example.driver.ts` as a starting point.
-3. Import your `foo.config.ts` file and then add the code to create a cloud deployment with the desired config under the `try {` clause in the `openPortalInstance` method.
-4. *Optional, but recommended* Add the method under the `try {` clause in `closePortalInstance` to destroy the VM instance. This will be called when a Room no longer needs a portal, such as when all members have gone offline.
-5. Now, under `src/drivers/router.ts`, import your driver and rename its methods so they don't conflict when any other drivers. See below:
+3. Import your `foo.config.ts` file then create an instance of the client using the `createClient` method exported in the config file.
+4. Then add the code to create a cloud deployment with the desired config under the `try {` clause in the `openPortalInstance` method.
+5. *Optional, but recommended* Add the method under the `try {` clause in `closePortalInstance` to destroy the VM instance. This will be called when a Room no longer needs a portal, such as when all members have gone offline.
+6. Now, under `src/drivers/router.ts`, import your driver and rename its methods so they don't conflict when any other drivers. See below:
 ```ts
 import {
     openPortalInstance as openFooPortalInstance,
     closePortalInstance as closeFooPortalInstance
 } from './foo.driver'
 ```
-6. *If you're not using TypeScript, skip this step* Make sure you have added the name of your driver to the `Driver` type. See below:
+7. *If you're not using TypeScript, skip this step* Make sure you have added the name of your driver to the `Driver` type. See below:
 ```ts
 type Driver = 'gcloud' | 'kubernetes' | 'foo'
 ```
-7. Add a `case` to the `switch` statement under `openPortalInstance` with the name of your driver methods. See below:
+8. Add a `case` to the `switch` statement under `openPortalInstance` with the name of your driver methods. See below:
 ```ts
 switch(driver) {
     ...
@@ -124,7 +125,7 @@ switch(driver) {
         break
 }
 ```
-8. *Optional, but recommended* If you added a `closePortalInstance` handler in your driver, add a `case` to the `switch` statement under `closePortalInstance` with the name of your driver methods. See below:
+9. *Optional, but recommended* If you added a `closePortalInstance` handler in your driver, add a `case` to the `switch` statement under `closePortalInstance` with the name of your driver methods. See below:
 ```ts
 switch(driver) {
     ...
@@ -133,11 +134,12 @@ switch(driver) {
         break
 }
 ```
-9. Make sure you change the current driver under `fetchCurrentDriver`. See below:
+10. Make sure you change the current driver under `fetchCurrentDriver`. See below:
 ```ts
 const fetchCurrentDriver = () => 'foo' as Driver
 ```
-10. Done! Enjoy using `@cryb/portals` with the cloud provider of your preferred choice. For any help, view [here](#questions-/-issues). If you're feeling generous, create a [PR request](https://github.com/crybapp/portals) with your driver so the community can use it. Be sure to follow our [Guidelines](https://github.com/crybapp/guidelines) before submitting a PR.
+
+Done! Enjoy using `@cryb/portals` with the cloud provider of your preferred choice. For any help, view [here](#questions-/-issues). If you're feeling generous, create a [PR request](https://github.com/crybapp/portals) with your driver so the community can use it. Be sure to follow our [Guidelines](https://github.com/crybapp/guidelines) before submitting a PR.
 
 ## Questions / Issues
 
