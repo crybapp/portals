@@ -11,14 +11,7 @@ const parseSentinels = (sentinels: string) =>
             port: parseInt(uri.split(':')[2])
         } as Sentinel)), // Parse sentinels from process env
         getOptions = () => { // Get Options Method
-            if(process.env.NODE_ENV === 'development')
-                return {
-                    host: 'localhost',
-                    port: 6379,
-                    connectTimeout: 2000
-                } as Redis.RedisOptions
-
-            return { sentinels: parseSentinels(process.env.REDIS_SENTINELS), name: 'mymaster' } as Redis.RedisOptions
+            return { sentinels: parseSentinels(process.env.REDIS_URI), name: 'mymaster' } as Redis.RedisOptions
         }
 
 export const createPubSubClient = () => new Redis(getOptions())
