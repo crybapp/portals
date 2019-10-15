@@ -1,8 +1,15 @@
-// Import the API you wish to use
-
 import Portal from '../models/portal'
 import test from '../config/providers/digitalocean.config'
 import { closePortal } from './portal.driver'
+import { DigitalOcean } from 'dots-wrapper';
+
+const myApiToken = 'c5380bb188bd8dace0c1e76fad3213e8d6e9dae973b3220874e847d1036e2c9e';
+const digitalOcean = new DigitalOcean(myApiToken);
+
+export function testFunction() {
+    let account = digitalOcean.Account.get()
+    console.log(account)
+}
 
 export const openPortalInstance = async (portal: Portal) => {
     const name = `portal-${portal.id}`
