@@ -3,13 +3,13 @@ import Portal from '../models/portal'
 import { createClient, fetchCredentials } from '../config/providers/gcloud.config'
 import { closePortal } from './portal.driver'
 
-const gcloud = createClient(),
-        { project_id: projectId } = fetchCredentials() || { project_id: null },
+const { project_id: projectId } = fetchCredentials() || { project_id: null },
         zoneId = 'us-east1-b',
         baseUrl = `https://www.googleapis.com/compute/v1/projects/${projectId}/zones/${zoneId}/`
 
 export const openPortalInstance = async (portal: Portal) => {
-    if(!gcloud) throw 'The Google Cloud driver is incorrect. This may be due to improper ENV variables, please try again'
+    const client = createClient()
+    if(!client) throw 'The Google Cloud driver is incorrect. This may be due to improper ENV variables, please try again'
 
     const portalName = `portal-${portal.id}`
 
@@ -17,7 +17,7 @@ export const openPortalInstance = async (portal: Portal) => {
         const instanceTemplate = `https://www.googleapis.com/compute/v1/projects/${projectId}/global/instanceTemplates/portal-template`
         
         // Create a VM under the template 'portal-template' with the name 'portal-{id}'
-        await gcloud.request({
+        await client.request({
             url: `${baseUrl}instances?sourceInstanceTemplate=${instanceTemplate}`,
             method: 'POST',
             data: {
@@ -36,12 +36,13 @@ export const openPortalInstance = async (portal: Portal) => {
 }
 
 export const closePortalInstance = async (portal: Portal) => {
-    if(!gcloud) throw 'The Google Cloud driver is incorrect. This may be due to improper ENV variables, please try again'
+    const client = createClient()
+    if(!client) throw 'The Google Cloud driver is incorrect. This may be due to improper ENV variables, please try again'
 
     const portalName = `portal-${portal.id}`
 
     try {
-        await gcloud.request({
+        await client.request({
             url: `${baseUrl}instances/${portalName}`,
             method: 'DELETE'
         })

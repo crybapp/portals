@@ -1,4 +1,4 @@
-import { V1Pod, V1Node } from '@kubernetes/client-node'
+import { V1Pod, V1Node, CoreV1Api } from '@kubernetes/client-node'
 
 import Portal from '../models/portal'
 
@@ -32,9 +32,8 @@ const getNodemap = (nodes: V1Node[]) => {
 
 export const isNodeAvailable = async () => !!(await fetchAvailableNode())
 
-const client = createClient()
-
-export const fetchAvailableNode = () => new Promise<V1Node>(async (resolve, reject) => {
+export const fetchAvailableNode = (client?: CoreV1Api) => new Promise<V1Node>(async (resolve, reject) => {
+    if(!client) client = createClient()
     if(!client) throw 'The Kubernetes driver is incorrect. This may be due to improper ENV variables, please try again'
 
     try {
@@ -57,6 +56,7 @@ export const fetchAvailableNode = () => new Promise<V1Node>(async (resolve, reje
 })
 
 export const openPortalInstance = async (portal: Portal) => {
+    const client = createClient()
     if(!client) throw 'The Kubernetes driver is incorrect. This may be due to improper ENV variables, please try again'
 
     const name = `portal-${portal.id}`
@@ -119,6 +119,7 @@ export const openPortalInstance = async (portal: Portal) => {
 }
 
 export const closePortalInstance = async (portal: Portal) => {
+    const client = createClient()
     if(!client) throw 'The Kubernetes driver is incorrect. This may be due to improper ENV variables, please try again'
 
     const podName = `portal-${portal.id}`
