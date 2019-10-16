@@ -7,8 +7,11 @@ const myApiToken = 'c5380bb188bd8dace0c1e76fad3213e8d6e9dae973b3220874e847d1036e
 const digitalOcean = new DigitalOcean(myApiToken);
 
 export function testFunction() {
-    let account = digitalOcean.Account.get()
-    console.log(account)
+    digitalOcean.Account.get().subscribe(
+        account => console.log(account),
+        err => console.log(err.message),
+        () => console.log("complete")
+    )
 }
 
 export const openPortalInstance = async (portal: Portal) => {
