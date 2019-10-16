@@ -22,7 +22,7 @@ export default (wss: Server) => {
         }
 
         routeMessage(json, clients)
-    }).subscribe('portal')
+    }).subscribe('portals')
 
     wss.on('connection', socket => {
         console.log('socket open')
