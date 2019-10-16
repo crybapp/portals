@@ -3,6 +3,7 @@ import client from '../config/redis.config'
 import PortalRequest from '../models/request/defs'
 import { createPortal } from '../drivers/portal.driver'
 import { fetchAvailableNode } from '../drivers/kubernetes.driver'
+import { fetchCurrentDriver } from '../drivers/router'
 
 /**
  * This method is responsible for fetching the queue length.
@@ -48,7 +49,7 @@ const pullQueueItem = async (index: number = 0) => new Promise<number>(async (re
 
 /**
  * This method is called when a request is completed. It first checks if
- * there are any available Kubeernetes nodes for a new Portal to be deployed on.
+ * there are any available Kubernetes nodes for a new Portal to be deployed on.
  * If not, the function does not complete. It checks if there is any items in the queue.
  * If not, the function does not complete. If there is another queue item, it'll fetch
  * the queue item and them call the method responsible for handling that queue item.
@@ -56,8 +57,12 @@ const pullQueueItem = async (index: number = 0) => new Promise<number>(async (re
 export const checkNextQueueItem = async () => {
     /**
      * If there are no available nodes, don't resume with creating a new queue item
+     * This only applies if we're using the Kubernetes driver
+     *
+     * TODO: Move this to Kubernetes driver
      */
-    if(!await fetchAvailableNode()) return
+    const driver = await fetchCurrentDriver()
+    if(driver == 'kubernetes' && !await fetchAvailableNode()) return
 
     const queueLength = await fetchQueueLength()
     if(queueLength === 0) return
