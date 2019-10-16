@@ -17,7 +17,7 @@ import {
 
 type Driver = 'gcloud' | 'kubernetes' | 'manual'
 
-const fetchCurrentDriver = () => 'manual' as Driver
+export const fetchCurrentDriver = () => 'manual' as Driver
 
 export const openPortalInstance = async (portal: Portal) => {
     const driver = await fetchCurrentDriver()
