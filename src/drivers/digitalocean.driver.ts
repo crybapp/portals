@@ -1,5 +1,5 @@
 import Portal from '../models/portal'
-import digitalOcean from '../config/providers/digitalocean.config'
+import digitalOcean, { doImgId } from '../config/providers/digitalocean.config'
 import { closePortal } from './portal.driver'
 
 export function testFunction() {
@@ -34,16 +34,16 @@ export const openPortalInstance = async (portal: Portal) => {
             name:name,
             region:"nyc3",
             size:"s-1vcpu-1gb",
-            image:"ubuntu-16-04-x64",
+            image: doImgId,
             backups:false,
             ipv6:true,
-            tags: ["stream"]
+            tags: ["stream", portal.id]
         }
 
         digitalOcean.Droplet.create(dropletSpecs).subscribe(
             dropletInfo => function() {
                 console.log(dropletInfo)
-                portal.serverId = dropletInfo.id.toString()
+                //portal.serverId = dropletInfo.id.toString()
             },
             err => console.log(err.message),
             () => console.log("CreateDropletComplete")
@@ -60,12 +60,10 @@ export const openPortalInstance = async (portal: Portal) => {
 }
 
 export const closePortalInstance = async (portal: Portal) => {
-    const name = `portal-${portal.id}`, { serverId } = portal
+    const name = `portal-${portal.id}`
 
     try {
-        digitalOcean.Droplet.delete(+serverId).subscribe(
-            dropletInfo => console.log(dropletInfo),
-            err => console.log(err.message),
+        digitalOcean.Droplet.delete(portal.id).subscribe(
             () => console.log("DeleteDropletComplete")
         )
 
