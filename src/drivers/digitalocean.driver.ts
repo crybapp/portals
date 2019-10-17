@@ -16,18 +16,15 @@ export const openPortalInstance = async (portal: Portal) => {
             tags: ["stream", portal.id]
         }
 
-        let dropletId = null
-
         digitalOcean.Droplet.create(dropletSpecs).subscribe(
-            dropletInfo => function() {
+            dropletInfo => async function() {
                 console.log(dropletInfo)
-                dropletId = dropletInfo.id
+                await portal.updateServerId(dropletInfo.id.toString())
             },
             err => console.log(err.message),
             () => console.log("CreateDropletComplete")
         )
 
-        await portal.updateServerId(dropletId.id.toString())
         await portal.updateStatus('starting')
 
         console.log(`opened portal with name ${name}`)
