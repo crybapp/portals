@@ -1,30 +1,6 @@
 import Portal from '../models/portal'
-import digitalOcean, { doImgId } from '../config/providers/digitalocean.config'
+import digitalOcean, { digitalOceanImageId } from '../config/providers/digitalocean.config'
 import { closePortal } from './portal.driver'
-
-export function testFunction() {
-    /* digitalOcean.Account.get().subscribe(
-        account => console.log(account),
-        err => console.log(err.message),
-        () => console.log("complete")
-    ) */
-
-/*     let dropletSpecs = {
-        name:"TestDropletFromCode1",
-        region:"nyc3",
-        size:"s-1vcpu-1gb",
-        image:"ubuntu-16-04-x64",
-        backups:false,
-        ipv6:true,
-        tags: ["stream"]
-    }
-
-    digitalOcean.Droplet.create(dropletSpecs).subscribe(
-        dropletInfo => console.log(dropletInfo),
-        err => console.log(err.message),
-        () => console.log("complete")
-    ) */
-}
 
 export const openPortalInstance = async (portal: Portal) => {
     const name = `portal-${portal.id}`
@@ -34,21 +10,24 @@ export const openPortalInstance = async (portal: Portal) => {
             name:name,
             region:"nyc3",
             size:"s-1vcpu-1gb",
-            image: doImgId,
+            image: digitalOceanImageId,
             backups:false,
             ipv6:true,
             tags: ["stream", portal.id]
         }
 
+        let dropletId = null
+
         digitalOcean.Droplet.create(dropletSpecs).subscribe(
             dropletInfo => function() {
                 console.log(dropletInfo)
-                //portal.serverId = dropletInfo.id.toString()
+                dropletId = dropletInfo.id
             },
             err => console.log(err.message),
             () => console.log("CreateDropletComplete")
         )
 
+        await portal.updateServerId(dropletId.id.toString())
         await portal.updateStatus('starting')
 
         console.log(`opened portal with name ${name}`)
@@ -63,7 +42,7 @@ export const closePortalInstance = async (portal: Portal) => {
     const name = `portal-${portal.id}`
 
     try {
-        digitalOcean.Droplet.delete(portal.id).subscribe(
+        digitalOcean.Droplet.delete(portal.serverId).subscribe(
             () => console.log("DeleteDropletComplete")
         )
 
