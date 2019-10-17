@@ -1,9 +1,10 @@
 import client from '../config/redis.config'
 
 import PortalRequest from '../models/request/defs'
+
+import { fetchCurrentDriver } from '../drivers/router'
 import { createPortal } from '../drivers/portal.driver'
 import { fetchAvailableNode } from '../drivers/kubernetes.driver'
-import { fetchCurrentDriver } from '../drivers/router'
 
 /**
  * This method is responsible for fetching the queue length.
