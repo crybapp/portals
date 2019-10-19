@@ -1,5 +1,5 @@
 import Portal from '../models/portal'
-import digitalOcean, { digitalOceanImageId } from '../config/providers/digitalocean.config'
+import digitalOcean, { digitalOceanImageId, digitalOceanDropletSize } from '../config/providers/digitalocean.config'
 import { closePortal } from './portal.driver'
 
 export const openPortalInstance = async (portal: Portal) => {
@@ -9,7 +9,7 @@ export const openPortalInstance = async (portal: Portal) => {
         let dropletSpecs = {
             name:name,
             region:"nyc3",
-            size:"s-1vcpu-1gb",
+            size:digitalOceanDropletSize,
             image: digitalOceanImageId,
             backups:false,
             ipv6:true,
