@@ -2,7 +2,7 @@
 
 _**Portals** - VM microservice_
 
-[![GitHub contributors](https://img.shields.io/github/contributors/crybapp/portal)](https://github.com/crybapp/portals/graphs/contributors) [![License](https://img.shields.io/github/license/crybapp/portal)](https://github.com/crybapp/portals/blob/master/LICENSE) [![PayPal Donate](https://img.shields.io/badge/donate-PayPal-blue.svg)](https://paypal.me/williamsthing)
+[![GitHub contributors](https://img.shields.io/github/contributors/crybapp/portals)](https://github.com/crybapp/portals/graphs/contributors) [![License](https://img.shields.io/github/license/crybapp/portals)](https://github.com/crybapp/portals/blob/master/LICENSE) [![PayPal Donate](https://img.shields.io/badge/donate-PayPal-blue.svg)](https://paypal.me/williamsthing)
 
 ## Docs
 * [Info](#info)
