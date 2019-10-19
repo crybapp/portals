@@ -39,7 +39,7 @@ export const closePortalInstance = async (portal: Portal) => {
             ...manualLogHeaders,
             `The Docker container running @cryb/portal with the portal id of ${portal.id} should now be terminated.`,
             ...manualLogFooters
-        ])
+        ].join('\n'))
 
         console.log(`closed portal with name ${name}`)
     } catch(error) {
