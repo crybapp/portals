@@ -2,7 +2,7 @@
 
 _**Portals** - VM microservice_
 
-![GitHub contributors](https://img.shields.io/github/contributors/crybapp/portals) ![GitHub](https://img.shields.io/github/license/crybapp/portals) [![PayPal Donate](https://img.shields.io/badge/donate-PayPal-blue.svg)](https://paypal.me/williamsthing)
+[![GitHub contributors](https://img.shields.io/github/contributors/crybapp/portals)](https://github.com/crybapp/portals/graphs/contributors) [![License](https://img.shields.io/github/license/crybapp/portals)](https://github.com/crybapp/portals/blob/master/LICENSE) [![PayPal Donate](https://img.shields.io/badge/donate-PayPal-blue.svg)](https://paypal.me/williamsthing)
 
 ## Docs
 * [Info](#info)
@@ -15,7 +15,7 @@ _**Portals** - VM microservice_
         * [Background services](#background-services)
         * [Starting @cryb/portals](#starting-@cryb/portals)
     * [Adding a custom provider](#adding-a-custom-provider)
-* [Questions / Issues](#questions-/-issues)
+* [Questions / Issues](#questions--issues)
 
 ## Info
 `@cryb/portals` is the microservice used to handle requests `@cryb/api` to create and destroy 'Portals', which is the term we use for VM instances.
@@ -129,4 +129,4 @@ Done! Enjoy using `@cryb/portals` with the cloud provider of your preferred choi
 
 ## Questions / Issues
 
-If you have an issues with `@cryb/portals`, please either open a GitHub issue, or contact a maintainer.
+If you have an issues with `@cryb/portals`, please either open a GitHub issue, contact a maintainer or join the [Cryb Discord Server](https://discord.gg/ShTATH4) and ask in #tech-support.
