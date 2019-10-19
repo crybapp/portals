@@ -63,19 +63,11 @@ We recommend that you run the following services alongside `@cryb/portals`, but 
 * `@cryb/web`
 * `@cryb/aperture`
 
-You also need to install the required dependencies, by running either:
+You also need to install the required dependencies by running `yarn`.
 
-```
-npm install
-```
-or
-```
-yarn
-```
+Ensure that `.env.example` is either copied and renamed to `.env`, or is simply renamed to `.env`.
 
-Ensure that `.env-example` is either copied and renamed to `.env`, or is simply renamed to `.env`.
-
-In this file, you'll need some values. Documentation is available in the `.env-example` file.
+In this file, you'll need some values. Documentation is available in the `.env.example` file.
 
 ### Running the app locally
 
@@ -87,15 +79,9 @@ The command to start MongoDB is `mongod`, and the command to start Redis is `red
 If you're developing a feature that requires the VM infrastructure, then make sure `@cryb/aperture` is running.
 
 #### Starting @cryb/portals
-To run `@cryb/portals` in development mode, run either:
+To run `@cryb/portals` in development mode, run `yarn dev`.
 
-```
-npm run dev
-```
-or
-```
-yarn dev
-```
+It is recommended that in production you run `yarn build`, then `yarn start`.
 
 ### Adding a custom provider
 `@cryb/portals` makes it easy to add a custom cloud provider to deploy Portal instances onto.
