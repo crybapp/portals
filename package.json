@@ -33,7 +33,7 @@
     "@types/express": "^4.17.1",
     "@types/ioredis": "^4.0.18",
     "@types/jsonwebtoken": "^8.3.5",
-    "@types/mongoose": "^5.5.13",
+    "@types/mongoose": "^5.5.22",
     "@types/morgan": "^1.7.37",
     "@types/redis": "^2.8.13",
     "@types/ws": "^6.0.3"
