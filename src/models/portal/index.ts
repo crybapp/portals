@@ -58,8 +58,14 @@ export default class Portal {
 
             this.setup(json)
 
-            const op = 0, d = { id: this.id, roomId }, t = 'PORTAL_CREATE'
-            pub.publish('portals', JSON.stringify({ op, d, t }))
+            /**
+             * Inform API of new portal with room id
+             */
+            await axios.post(`${process.env.API_URL}/internal/portal`, { id: this.id, roomId }, {
+                headers: {
+                    authorization: `Valve ${sign({}, process.env.API_KEY)}`
+                }
+            })
 
             resolve(this)
         } catch(error) {
@@ -92,7 +98,10 @@ export default class Portal {
                 }
             })
 
-            await axios.post(`${process.env.API_URL}/internal/portal`, { id: this.id, status }, {
+            /**
+             * Update API on status of portal
+             */
+            await axios.put(`${process.env.API_URL}/internal/portal`, { id: this.id, status }, {
                 headers: {
                     authorization: `Valve ${sign({}, process.env.API_KEY)}`
                 }

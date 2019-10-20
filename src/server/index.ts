@@ -11,6 +11,10 @@ import { connect } from 'mongoose'
 import routes from './routes'
 import websocket from './websocket'
 
+import { verify_env } from '../utils/verifications.utils'
+
+verify_env('API_URL', 'API_KEY', 'PORTAL_KEY', 'MONGO_URI')
+
 const app = express()
 const server = createServer(app)
 const wss = new Server({ server })
