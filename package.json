@@ -25,10 +25,8 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.6.11",
     "morgan": "^1.9.1",
-    "ts-jest": "^24.0.2",
     "tsc-watch": "^2.2.1",
-    "typescript": "^3.5.3",
-    "vultr": "^0.0.9"
+    "typescript": "^3.5.3"
   },
   "devDependencies": {
     "@types/dotenv": "^6.1.1",
