@@ -116,3 +116,6 @@ Temporary Items
 
 # Compiled JS
 dist
+
+#In Use Packages
+package-lock.json

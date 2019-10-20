@@ -15,9 +15,14 @@ import {
     closePortalInstance as closeManualPortalInstance
 } from './manual.driver'
 
-type Driver = 'gcloud' | 'kubernetes' | 'manual'
+import {
+    openPortalInstance as openDigitalOceanPortalInstance,
+    closePortalInstance as closeDigitalOceanPortalInstance
+} from './digitalocean.driver'
 
-export const fetchCurrentDriver = () => 'manual' as Driver
+type Driver = 'gcloud' | 'kubernetes' | 'manual' | 'digitalocean'
+
+export const fetchCurrentDriver = () => 'digitalocean' as Driver
 
 export const openPortalInstance = async (portal: Portal) => {
     const driver = await fetchCurrentDriver()
@@ -32,6 +37,9 @@ export const openPortalInstance = async (portal: Portal) => {
             break
         case 'manual':
             openManualPortalInstance(portal)
+            break
+        case 'digitalocean':
+            openDigitalOceanPortalInstance(portal)
             break
     }
 }
@@ -49,6 +57,9 @@ export const closePortalInstance = async (portal: Portal) => {
             break
         case 'manual':
             closeManualPortalInstance(portal)
+            break
+        case 'digitalocean':
+            closeDigitalOceanPortalInstance(portal)
             break
     }
 }
