@@ -12,9 +12,6 @@ const PortalSchema = new Schema({
         server: String,
         
         status: String
-    },
-    data: {
-        serverId: String
     }
 })
 

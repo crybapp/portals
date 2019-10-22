@@ -1,54 +1,47 @@
-import Portal from '../models/portal'
-
 import {
-    openPortalInstance as openGCloudPortalInstance,
-    closePortalInstance as closeGCloudPortalInstance
+    openServerInstance as openGCloudServerInstance,
+    openServerInstance as closeGCloudServerInstance
 } from './gcloud.driver'
 
 import {
-    openPortalInstance as openK8SPortalInstance,
-    closePortalInstance as closeK8SPortalInstance
+    openServerInstance as openK8SServerInstance,
+    openServerInstance as closeK8SServerInstance
 } from './kubernetes.driver'
 
-import {
-    openPortalInstance as openManualPortalInstance,
-    closePortalInstance as closeManualPortalInstance
-} from './manual.driver'
+type Driver = 'gcloud' | 'kubernetes' | null
 
-type Driver = 'gcloud' | 'kubernetes' | 'manual'
+export const fetchCurrentDriver = () => null as Driver
 
-export const fetchCurrentDriver = () => 'manual' as Driver
-
-export const openPortalInstance = async (portal: Portal) => {
+export const openServerInstance = async () => {
     const driver = await fetchCurrentDriver()
-    console.log('using driver', driver, 'to open portal with id', portal.id)
+    console.log('using driver', driver, 'to open server')
 
     switch(driver) {
         case 'gcloud':
-            openGCloudPortalInstance(portal)
+            openGCloudServerInstance()
             break
         case 'kubernetes':
-            openK8SPortalInstance(portal)
+            openK8SServerInstance()
             break
-        case 'manual':
-            openManualPortalInstance(portal)
+        default:
+            console.log('driver not found')
             break
     }
 }
 
-export const closePortalInstance = async (portal: Portal) => {
+export const closeServerInstance = async () => {
     const driver = await fetchCurrentDriver()
-    console.log('using driver', driver, 'to open portal with id', portal.id)
+    console.log('using driver', driver, 'to close server')
 
     switch(driver) {
         case 'gcloud':
-            closeGCloudPortalInstance(portal)
+            closeGCloudServerInstance()
             break
         case 'kubernetes':
-            closeK8SPortalInstance(portal)
+            closeK8SServerInstance()
             break
-        case 'manual':
-            closeManualPortalInstance(portal)
+        default:
+            console.log('driver not found')
             break
     }
 }

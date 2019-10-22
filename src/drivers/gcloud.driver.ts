@@ -1,17 +1,12 @@
-import Portal from '../models/portal'
-
 import { createClient, fetchCredentials } from '../config/providers/gcloud.config'
-import { closePortal } from './portal.driver'
 
 const { project_id: projectId } = fetchCredentials() || { project_id: null },
         zoneId = 'us-east1-b',
         baseUrl = `https://www.googleapis.com/compute/v1/projects/${projectId}/zones/${zoneId}/`
 
-export const openPortalInstance = async (portal: Portal) => {
+export const openServerInstance = async () => {
     const client = createClient()
     if(!client) throw 'The Google Cloud driver is incorrect. This may be due to improper ENV variables, please try again'
-
-    const portalName = `portal-${portal.id}`
 
     try {
         const instanceTemplate = `https://www.googleapis.com/compute/v1/projects/${projectId}/global/instanceTemplates/portal-template`
@@ -21,33 +16,27 @@ export const openPortalInstance = async (portal: Portal) => {
             url: `${baseUrl}instances?sourceInstanceTemplate=${instanceTemplate}`,
             method: 'POST',
             data: {
-                name: portalName
+                name: `server-${Date.now()}`
             }
         })
 
-        await portal.updateStatus('starting')
-
-        console.log(`opened portal with name ${portalName}`)
+        console.log('opened server using gcloud.driver')
     } catch(error) {
-        closePortal(portal.id)
-
         console.error('error while opening portal', error)
     }
 }
 
-export const closePortalInstance = async (portal: Portal) => {
+export const closeServerInstance = async () => {
     const client = createClient()
     if(!client) throw 'The Google Cloud driver is incorrect. This may be due to improper ENV variables, please try again'
 
-    const portalName = `portal-${portal.id}`
-
     try {
-        await client.request({
-            url: `${baseUrl}instances/${portalName}`,
-            method: 'DELETE'
-        })
+        // await client.request({
+        //     url: `${baseUrl}instances/${portalName}`,
+        //     method: 'DELETE'
+        // })
 
-        console.log(`closed portal with name ${portalName}`)
+        console.log('closed server using gcloud.driver')
     } catch(error) {
         console.error('error while closing portal', error.response ? error.response.body : error)
     }

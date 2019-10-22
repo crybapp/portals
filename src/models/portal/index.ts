@@ -8,9 +8,13 @@ import PortalRequest from '../request/defs'
 import IPortal from './defs'
 import StoredPortal from '../../schemas/portal.schema'
 
+import config from '../../config/defaults'
+import StoredServer from '../../schemas/server.schema'
+
+import { openServerInstance } from '../../drivers/router'
+
 import { generateFlake } from '../../utils/generate.utils'
 import { createPubSubClient } from '../../config/redis.config'
-import StoredServer from '../../schemas/server.schema'
 
 const pub = createPubSubClient()
 
@@ -71,7 +75,8 @@ export default class Portal {
                 const server = new Server(serverDoc)
                 console.log('Assigning portal to server', server.id)
                 await server.assign(this)
-            } else console.log('Could not assign portal to server')
+            } else if(config.dynamic_vms_enabled)
+                openServerInstance()
 
             /**
              * Inform API of new portal with room id

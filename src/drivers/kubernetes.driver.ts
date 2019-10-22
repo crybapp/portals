@@ -3,7 +3,6 @@ import { V1Pod, V1Node, CoreV1Api } from '@kubernetes/client-node'
 import Portal from '../models/portal'
 
 import { createClient } from '../config/providers/kubernetes.config'
-import { closePortal } from './portal.driver'
 
 type Nodemap = {
     [key in string]: number
@@ -55,11 +54,11 @@ export const fetchAvailableNode = (client?: CoreV1Api) => new Promise<V1Node>(as
     }
 })
 
-export const openPortalInstance = async (portal: Portal) => {
+export const openServerInstance = async () => {
     const client = createClient()
     if(!client) throw 'The Kubernetes driver is incorrect. This may be due to improper ENV variables, please try again'
 
-    const name = `portal-${portal.id}`
+    const name = `server-${Date.now()}`
 
     try {
         const _pod = {
@@ -102,32 +101,27 @@ export const openPortalInstance = async (portal: Portal) => {
                         envFrom: [{
                             secretRef: { name: process.env.K8S_PORTAL_ENV_SECRET }
                         }],
-                        ports: [{ containerPort: 80 }],
-                        args: ['--portalId', portal.id]
+                        ports: [{ containerPort: 80 }]
                     }
                 ],
                 imagePullSecrets: [{ name: process.env.K8S_PORTAL_IMAGE_PULL_SECRET }]
             }
         } as V1Pod, { body: pod } = await client.createNamespacedPod('portals', _pod)
 
-        console.log(`opened portal with name ${pod.metadata.name} in namespace ${pod.metadata.namespace}`)
+        console.log(`opened server using kubernetes.driver`)
     } catch(error) {
-        closePortal(portal.id)
-
         console.error('error while opening portal', error.response ? error.response.body : error)
     }
 }
 
-export const closePortalInstance = async (portal: Portal) => {
+export const closeServerInstance = async () => {
     const client = createClient()
     if(!client) throw 'The Kubernetes driver is incorrect. This may be due to improper ENV variables, please try again'
 
-    const podName = `portal-${portal.id}`
-
     try {
-        const { body: status } = await client.deleteNamespacedPod(podName, 'portals')
+        // const { body: status } = await client.deleteNamespacedPod(podName, 'portals')
 
-        console.log(`closed portal with name ${podName} which has been running since ${new Date(status.status['startTime'])}`)
+        console.log(`closed portal using kubernetes.driver`)
     } catch(error) {
         console.error('error while closing portal', error.response ? error.response.body : error)
     }
