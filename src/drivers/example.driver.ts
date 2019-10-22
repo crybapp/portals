@@ -4,7 +4,6 @@ import Portal from '../models/portal'
 import { createClient } from '../config/providers/example.config'
 import { closePortal } from './portal.driver'
 
-
 export const openPortalInstance = async (portal: Portal) => {
     const client = createClient(),
             name = `portal-${portal.id}`
