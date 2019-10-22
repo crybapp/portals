@@ -10,8 +10,8 @@ export const openPortalInstance = async (portal: Portal) => {
 
     try {
         // Create the server using the API & Provider of your choice
-        await client.createServer()
-        await portal.updateStatus('starting')
+        // await client.createServer()
+        // await portal.updateStatus('starting')
 
         console.log(`opened portal with name ${name}`)
     } catch(error) {
@@ -22,15 +22,13 @@ export const openPortalInstance = async (portal: Portal) => {
 }
 
 export const closePortalInstance = async (portal: Portal) => {
-    const client = createClient(),
-            name = `portal-${portal.id}`,
-            { serverId } = portal
+    const client = createClient()
 
     try {
         // Destroy the server using the id of the server you stored when creating the server
-        await client.destroyServer()
+        // await client.destroyServer()
 
-        console.log(`closed portal with name ${name}`)
+        // console.log(`closed portal with name ${name}`)
     } catch(error) {
         console.error('error while closing portal', error.response ? error.response.body : error)
     }

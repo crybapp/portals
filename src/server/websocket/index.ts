@@ -1,12 +1,14 @@
-import { Server } from 'ws'
+import { Server as WSS } from 'ws'
+
+import Server from '../../models/server'
 
 import WSEvent from './defs'
-import client, { createPubSubClient } from '../../config/redis.config'
+import { createPubSubClient } from '../../config/redis.config'
 import handleMessage, { routeMessage } from './handlers'
 
 const sub = createPubSubClient()
 
-export default (wss: Server) => {
+export default (wss: WSS) => {
     sub.on('message', (channel, data) => {
         console.log('recieved message on channel', channel, 'data', data)
         
@@ -43,8 +45,10 @@ export default (wss: Server) => {
 
             console.log('socket closed', id, type)
 
-            if(type === 'server')
-                client.lrem('servers', 1, id)
+            if(type === 'server') {
+                const server  = await new Server().load(id)
+                server.destroy()
+            }
         })
     })
 }

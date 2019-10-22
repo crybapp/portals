@@ -22,7 +22,7 @@ export const closePortal = (portalId: string) => new Promise(async (resolve, rej
         
         closePortalInstance(portal)
 
-        if(portal.status === 'open')
+        if(portal.status === 'connected')
             checkNextQueueItem()
 
         console.log('closing portal with status', portal.status)

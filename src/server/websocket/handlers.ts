@@ -5,6 +5,7 @@ import client from '../../config/redis.config'
 
 import WSEvent, { ClientType } from './defs'
 import { generateFlake } from '../../utils/generate.utils'
+import Server from '../../models/server'
 
 const ACCEPTABLE_CLIENT_TYPES: ClientType[] = ['server'],
         isClientWithIdAndType = (id: string, type: ClientType) => (client: WebSocket) => client['id'] === id && client['type'] === type
@@ -22,7 +23,7 @@ const handleMessage = async (message: WSEvent, socket: WebSocket) => {
     if(op === 2) {
         try {
             const { token, type } = d,
-                    payload = verify(token, process.env.PORTAL_KEY)
+                    payload = verify(token, process.env.PORTAL_KEY) as { id?: string }
 
             if(!payload) return socket.close(1013)
             if(ACCEPTABLE_CLIENT_TYPES.indexOf(type) === -1) return socket.close(1013)
@@ -30,13 +31,17 @@ const handleMessage = async (message: WSEvent, socket: WebSocket) => {
             socket['type'] = type
 
             if(type === 'server') {
-                const id = generateFlake()
-                socket.send(JSON.stringify({ op: 10, d: { id } }))
+                let server: Server
 
-                client.lpush('servers', id)
+                if(payload.id && await client.sismember('servers', payload.id) === 1)
+                    server = await new Server().load(payload.id)
+                else
+                    server = await new Server().create()
 
-                socket['id'] = id
-                console.log('recieved auth from', type, id)
+                socket['id'] = server.id
+                socket.send(JSON.stringify({ op: 10, d: { id: server.id } }))
+
+                console.log('recieved auth from', type, server.id)
             } else return socket.close(1013)
         } catch(error) {
             socket.close(1013)

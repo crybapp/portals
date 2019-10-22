@@ -11,18 +11,18 @@ import { createPubSubClient } from '../../config/redis.config'
 
 const pub = createPubSubClient()
 
-export type PortalStatus = 'waiting' | 'requested' | 'in-queue' | 'creating' | 'starting' | 'open' | 'closed' | 'error'
+export type PortalStatus = 'connected' | 'starting' | 'in-queue' | 'waiting' | 'closed' | 'error'
+export type PortalResolvable = Portal | string
 
 export default class Portal {
     id: string
     createdAt: number
     recievedAt: number
 
-    serverId: string
-
-    status: PortalStatus
-
     room: string
+    server?: string
+    
+    status: PortalStatus
 
     load = (id: string) => new Promise<Portal>(async (resolve, reject) => {
         try {
@@ -48,9 +48,8 @@ export default class Portal {
                     recievedAt,
 
                     room: roomId,
-                    status: 'creating'
-                },
-                data: {}
+                    status: 'starting'
+                }
             }
 
             const stored = new StoredPortal(json)
@@ -115,24 +114,6 @@ export default class Portal {
         }
     })
 
-    updateServerId = (serverId: string) => new Promise<Portal>(async (resolve, reject) => {
-        try {
-            await StoredPortal.updateOne({
-                'info.id': this.id
-            }, {
-                $set: {
-                    'data.serverId': serverId
-                }
-            })
-
-            this.serverId = serverId
-
-            resolve(this)
-        } catch(error) {
-            reject(error)
-        }
-    })
-
     setup = (json: IPortal) => {
         this.id = json.info.id
         this.createdAt = json.info.createdAt
@@ -140,9 +121,7 @@ export default class Portal {
 
         this.room = json.info.room
         this.status = json.info.status
-        
-        if(json.data)
-            if(json.data.serverId)
-                this.serverId = json.data.serverId
+
+        this.server = json.info.server
     }
 }
