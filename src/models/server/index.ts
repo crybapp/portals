@@ -106,6 +106,8 @@ export default class Server {
             if(typeof portal !== 'string')
                 portal.updateStatus('open')
 
+            client.hset('portals', portalId, this.id)
+
             this.portal = portal
 
             resolve(this)
@@ -135,6 +137,8 @@ export default class Server {
                     'info.server': ''
                 }
             })
+
+            client.hdel('portals', portalId)
 
             let portal: Portal
             if(typeof this.portal === 'string')
