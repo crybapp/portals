@@ -1,6 +1,8 @@
 import axios from 'axios'
 import { sign } from 'jsonwebtoken'
 
+import Server from '../server'
+
 import PortalRequest from '../request/defs'
 
 import IPortal from './defs'
@@ -8,10 +10,11 @@ import StoredPortal from '../../schemas/portal.schema'
 
 import { generateFlake } from '../../utils/generate.utils'
 import { createPubSubClient } from '../../config/redis.config'
+import StoredServer from '../../schemas/server.schema'
 
 const pub = createPubSubClient()
 
-export type PortalStatus = 'connected' | 'starting' | 'in-queue' | 'waiting' | 'closed' | 'error'
+export type PortalStatus = 'open' | 'starting' | 'in-queue' | 'closed' | 'error'
 export type PortalResolvable = Portal | string
 
 export default class Portal {
@@ -23,6 +26,12 @@ export default class Portal {
     server?: string
     
     status: PortalStatus
+
+    constructor(json?: IPortal) {
+        if(!json) return
+
+        this.setup(json)
+    }
 
     load = (id: string) => new Promise<Portal>(async (resolve, reject) => {
         try {
@@ -48,7 +57,7 @@ export default class Portal {
                     recievedAt,
 
                     room: roomId,
-                    status: 'starting'
+                    status: 'in-queue'
                 }
             }
 
@@ -56,15 +65,22 @@ export default class Portal {
             await stored.save()
 
             this.setup(json)
+            
+            const serverDoc = await StoredServer.findOne({ 'info.portal': { $exists: false } })
+            if(serverDoc) {
+                const server = new Server(serverDoc)
+                console.log('Assigning portal to server', server.id)
+                await server.assign(this)
+            } else console.log('Could not assign portal to server')
 
             /**
              * Inform API of new portal with room id
              */
-            await axios.post(`${process.env.API_URL}/internal/portal`, { id: this.id, roomId }, {
-                headers: {
-                    authorization: `Valve ${sign({}, process.env.API_KEY)}`
-                }
-            })
+            // await axios.post(`${process.env.API_URL}/internal/portal`, { id: this.id, roomId }, {
+            //     headers: {
+            //         authorization: `Valve ${sign({}, process.env.API_KEY)}`
+            //     }
+            // })
 
             resolve(this)
         } catch(error) {

@@ -9,6 +9,8 @@ const PortalSchema = new Schema({
         recievedAt: Number,
 
         room: String,
+        server: String,
+        
         status: String
     },
     data: {

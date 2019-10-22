@@ -1,25 +1,38 @@
 import express from 'express'
 
+import Portal from '../models/portal'
 import PortalRequest from '../models/request/defs'
 
-import { pushQueue } from '../services/queue.service'
-import { closePortal } from '../drivers/portal.driver'
 import authenticate from '../server/middleware/authenticate.middleware'
 
 const app = express()
 
-app.post('/create', authenticate, (req, res) => {
+app.post('/create', authenticate, async (req, res) => {
     const { roomId } = req.body, request: PortalRequest = { roomId, recievedAt: Date.now() }
-    pushQueue(request)
-    
-    res.send(request)
+
+    try {
+        const portal = await new Portal().create(request)
+
+        res.send(portal)
+    } catch(error) {
+        console.error(error)
+        res.sendStatus(500)
+    }
 })
 
-app.delete('/:id', authenticate, (req, res) => {
+app.delete('/:id', authenticate, async (req, res) => {
     const { id: portalId } = req.params
-    closePortal(portalId)
+    console.log('recieved request to close portal', portalId)
 
-    res.sendStatus(200)
+    try {
+        const portal = await new Portal().load(portalId)
+        await portal.destroy()
+
+        res.sendStatus(200)
+    } catch(error) {
+        console.error(error)
+        res.sendStatus(500)
+    }
 })
 
 export default app
