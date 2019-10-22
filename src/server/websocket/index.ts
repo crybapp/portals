@@ -1,9 +1,7 @@
 import { Server } from 'ws'
 
-import Portal from '../../models/portal'
-
 import WSEvent from './defs'
-import { createPubSubClient } from '../../config/redis.config'
+import client, { createPubSubClient } from '../../config/redis.config'
 import handleMessage, { routeMessage } from './handlers'
 
 const sub = createPubSubClient()
@@ -40,16 +38,13 @@ export default (wss: Server) => {
         })
 
         socket.on('close', async () => {
-
             const id = socket['id'], type = socket['type']
             if(!id) return console.log('unknown socket closed')
 
             console.log('socket closed', id, type)
 
-            if(type === 'portal') {
-                const portal = await new Portal().load(id)
-                portal.updateStatus('closed')
-            }
+            if(type === 'server')
+                client.lrem('servers', 1, id)
         })
     })
 }

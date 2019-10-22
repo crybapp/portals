@@ -1,7 +1,7 @@
 import WebSocket from 'ws'
 import { verify } from 'jsonwebtoken'
 
-import Portal from '../../models/portal'
+import client from '../../config/redis.config'
 
 import WSEvent, { ClientType } from './defs'
 import { generateFlake } from '../../utils/generate.utils'
@@ -32,6 +32,8 @@ const handleMessage = async (message: WSEvent, socket: WebSocket) => {
             if(type === 'server') {
                 const id = generateFlake()
                 socket.send(JSON.stringify({ op: 10, d: { id } }))
+
+                client.lpush('servers', id)
 
                 socket['id'] = id
                 console.log('recieved auth from', type, id)
