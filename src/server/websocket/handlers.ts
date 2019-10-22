@@ -57,7 +57,9 @@ export default handleMessage
  */
 export const routeMessage = async (message: WSEvent, clients: WebSocket[]) => {
     const { op, d, t } = message, { t: targetId } = d
-    console.log('recieved internal portal message to be routed to portal with id', targetId, JSON.stringify(message))
+    
+    if(process.env.NODE_ENV === 'development')
+        console.log('recieved internal portal message to be routed to portal with id', targetId, JSON.stringify(message))
 
     const target = clients.find(isClientWithIdAndType(await client.hget('portals', targetId), 'server'))
     if(!target) return console.log('target not found for internal message to portal; aborting')
