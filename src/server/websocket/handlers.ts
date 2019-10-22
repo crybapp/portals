@@ -1,11 +1,10 @@
 import WebSocket from 'ws'
 import { verify } from 'jsonwebtoken'
 
-import client from '../../config/redis.config'
-
-import WSEvent, { ClientType } from './defs'
-import { generateFlake } from '../../utils/generate.utils'
 import Server from '../../models/server'
+import WSEvent, { ClientType } from './defs'
+
+import client from '../../config/redis.config'
 
 const ACCEPTABLE_CLIENT_TYPES: ClientType[] = ['server'],
         isClientWithIdAndType = (id: string, type: ClientType) => (client: WebSocket) => client['id'] === id && client['type'] === type
