@@ -9,6 +9,8 @@ import client from '../../config/redis.config'
 import { generateFlake } from '../../utils/generate.utils'
 import { extractPortalId } from '../../utils/helpers.utils'
 
+export type ServerResolvable = Server | string
+
 export default class Server {
     id: string
     connectedAt: number

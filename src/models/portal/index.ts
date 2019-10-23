@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { sign } from 'jsonwebtoken'
 
-import Server from '../server'
+import Server, { ServerResolvable } from '../server'
 
 import PortalRequest from '../request/defs'
 
@@ -14,6 +14,7 @@ import StoredServer from '../../schemas/server.schema'
 import { openServerInstance } from '../../drivers/router'
 
 import { generateFlake } from '../../utils/generate.utils'
+import { extractServerId } from '../../utils/helpers.utils'
 import { createPubSubClient } from '../../config/redis.config'
 
 const pub = createPubSubClient()
@@ -27,7 +28,7 @@ export default class Portal {
     recievedAt: number
 
     room: string
-    server?: string
+    server?: ServerResolvable
     
     status: PortalStatus
 
@@ -77,15 +78,7 @@ export default class Portal {
                 await server.assign(this)
             } else if(config.dynamic_vms_enabled)
                 openServerInstance()
-
-            /**
-             * Inform API of new portal with room id
-             */
-            // await axios.post(`${process.env.API_URL}/internal/portal`, { id: this.id, roomId }, {
-            //     headers: {
-            //         authorization: `Valve ${sign({}, process.env.API_KEY)}`
-            //     }
-            // })
+            else console.log('Could not assign portal to server')
 
             resolve(this)
         } catch(error) {
@@ -95,6 +88,18 @@ export default class Portal {
 
     destroy = (error?: string) => new Promise(async (resolve, reject) => {
         try {
+            if(this.server) {
+                const serverId = extractServerId(this.server)
+
+                let server: Server
+                if(typeof this.server === 'string')
+                    server = await new Server().load(serverId)
+                else
+                    server = this.server
+
+                await server.unassign()
+            }
+
             await StoredPortal.deleteOne({
                 'info.id': this.id
             })
