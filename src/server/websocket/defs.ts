@@ -1,4 +1,4 @@
-export type ClientType = 'portal'
+export type ClientType = 'server'
 
 export default interface WSEvent {
     op: number

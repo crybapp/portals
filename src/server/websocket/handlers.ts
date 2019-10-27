@@ -1,12 +1,19 @@
 import WebSocket from 'ws'
 import { verify } from 'jsonwebtoken'
 
-import Portal from '../../models/portal'
-
+import Server from '../../models/server'
 import WSEvent, { ClientType } from './defs'
 
-const ACCEPTABLE_CLIENT_TYPES: ClientType[] = ['portal'],
+import client from '../../config/redis.config'
+import Deployment from '../../models/deployment'
+
+const ACCEPTABLE_CLIENT_TYPES: ClientType[] = ['server'],
         isClientWithIdAndType = (id: string, type: ClientType) => (client: WebSocket) => client['id'] === id && client['type'] === type
+
+interface IBeacon {
+    id?: string
+    hostname?: string
+}
 
 /**
  * Message incoming from Portal over WS
@@ -16,28 +23,47 @@ const handleMessage = async (message: WSEvent, socket: WebSocket) => {
             clientId = socket['id'],
             clientType = socket['type']
             
-    console.log(`recieved message from ${clientType} (${clientId || 'unknown'}) over ws`, op, t)
+    console.log(`recieved ${JSON.stringify(d)} from ${clientType || 'unknown'} (${clientId || 'unknown'}) over ws`, op, t)
 
     if(op === 2) {
         try {
-            const { token, type } = d, { id } = verify(token, process.env.PORTAL_KEY) as { id: string }
+            const { token, type } = d,
+                    payload = verify(token, process.env.PORTAL_KEY) as IBeacon
+
+            if(!payload) return socket.close(1013)
             if(ACCEPTABLE_CLIENT_TYPES.indexOf(type) === -1) return socket.close(1013)
 
-            socket['id'] = id
             socket['type'] = type
 
-            if(type === 'portal') {
-                const portal = await new Portal().load(id)
-                await portal.updateStatus('open')
-            }
+            if(type === 'server') {
+                let server: Server
 
-            console.log('recieved auth from', type, id)
+                if(payload.id && await client.sismember('servers', payload.id) === 1)
+                    server = await new Server().load(payload.id)
+                else
+                    server = await new Server().create()
+
+                socket['id'] = server.id
+                socket.send(JSON.stringify({ op: 10, d: { id: server.id } }))
+
+                if(payload.hostname) {
+                    const deployment = await new Deployment().findByName(payload.hostname)
+
+                    deployment.assignServer(server)
+                    deployment.updateStatus('in-use')
+    
+                    socket['deployment'] = deployment.id
+                }
+
+                console.log('recieved auth from', type, server.id)
+            } else return socket.close(1013)
         } catch(error) {
             socket.close(1013)
             console.error('authentication error', error)
         }
     }
 }
+
 export default handleMessage
 
 /**
@@ -45,9 +71,11 @@ export default handleMessage
  */
 export const routeMessage = async (message: WSEvent, clients: WebSocket[]) => {
     const { op, d, t } = message, { t: targetId } = d
-    console.log('recieved internal portal message to be routed to portal with id', targetId, JSON.stringify(message))
+    
+    if(process.env.NODE_ENV === 'development')
+        console.log('recieved internal portal message to be routed to portal with id', targetId, JSON.stringify(message))
 
-    const target = clients.find(isClientWithIdAndType(targetId, 'portal'))
+    const target = clients.find(isClientWithIdAndType(await client.hget('portals', targetId), 'server'))
     if(!target) return console.log('target not found for internal message to portal; aborting')
 
     target.send(JSON.stringify({ op, d: { ...d, t: undefined }, t }))

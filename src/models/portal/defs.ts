@@ -9,10 +9,9 @@ export default interface IPortal {
         recievedAt: number
 
         room: string
+        server?: string
+
         status: PortalStatus
-    }
-    data: {
-        serverId?: string
     }
 }
 

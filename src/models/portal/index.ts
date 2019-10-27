@@ -1,28 +1,42 @@
 import axios from 'axios'
 import { sign } from 'jsonwebtoken'
 
+import Server, { ServerResolvable } from '../server'
+
 import PortalRequest from '../request/defs'
 
 import IPortal from './defs'
 import StoredPortal from '../../schemas/portal.schema'
 
+import config from '../../config/defaults'
+import StoredServer from '../../schemas/server.schema'
+
+import { openServerInstance } from '../../drivers/router'
+
 import { generateFlake } from '../../utils/generate.utils'
+import { extractServerId } from '../../utils/helpers.utils'
 import { createPubSubClient } from '../../config/redis.config'
 
 const pub = createPubSubClient()
 
-export type PortalStatus = 'waiting' | 'requested' | 'in-queue' | 'creating' | 'starting' | 'open' | 'closed' | 'error'
+export type PortalStatus = 'open' | 'starting' | 'in-queue' | 'closed' | 'error'
+export type PortalResolvable = Portal | string
 
 export default class Portal {
     id: string
     createdAt: number
     recievedAt: number
 
-    serverId: string
-
+    room: string
+    server?: ServerResolvable
+    
     status: PortalStatus
 
-    room: string
+    constructor(json?: IPortal) {
+        if(!json) return
+
+        this.setup(json)
+    }
 
     load = (id: string) => new Promise<Portal>(async (resolve, reject) => {
         try {
@@ -48,24 +62,23 @@ export default class Portal {
                     recievedAt,
 
                     room: roomId,
-                    status: 'creating'
-                },
-                data: {}
+                    status: 'in-queue'
+                }
             }
 
             const stored = new StoredPortal(json)
             await stored.save()
 
             this.setup(json)
-
-            /**
-             * Inform API of new portal with room id
-             */
-            await axios.post(`${process.env.API_URL}/internal/portal`, { id: this.id, roomId }, {
-                headers: {
-                    authorization: `Valve ${sign({}, process.env.API_KEY)}`
-                }
-            })
+            
+            const serverDoc = await StoredServer.findOne({ 'info.portal': { $exists: false } })
+            if(serverDoc) {
+                const server = new Server(serverDoc)
+                console.log('Assigning portal to server', server.id)
+                await server.assign(this)
+            } else if(config.dynamic_vms_enabled)
+                openServerInstance()
+            else console.log('Could not assign portal to server')
 
             resolve(this)
         } catch(error) {
@@ -75,6 +88,18 @@ export default class Portal {
 
     destroy = (error?: string) => new Promise(async (resolve, reject) => {
         try {
+            if(this.server) {
+                const serverId = extractServerId(this.server)
+
+                let server: Server
+                if(typeof this.server === 'string')
+                    server = await new Server().load(serverId)
+                else
+                    server = this.server
+
+                await server.unassign()
+            }
+
             await StoredPortal.deleteOne({
                 'info.id': this.id
             })
@@ -115,24 +140,6 @@ export default class Portal {
         }
     })
 
-    updateServerId = (serverId: string) => new Promise<Portal>(async (resolve, reject) => {
-        try {
-            await StoredPortal.updateOne({
-                'info.id': this.id
-            }, {
-                $set: {
-                    'data.serverId': serverId
-                }
-            })
-
-            this.serverId = serverId
-
-            resolve(this)
-        } catch(error) {
-            reject(error)
-        }
-    })
-
     setup = (json: IPortal) => {
         this.id = json.info.id
         this.createdAt = json.info.createdAt
@@ -140,9 +147,7 @@ export default class Portal {
 
         this.room = json.info.room
         this.status = json.info.status
-        
-        if(json.data)
-            if(json.data.serverId)
-                this.serverId = json.data.serverId
+
+        this.server = json.info.server
     }
 }

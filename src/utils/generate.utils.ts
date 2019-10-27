@@ -6,3 +6,4 @@ const flake = new FlakeId({
 })
 
 export const generateFlake = () => intformat(flake.next(), 'dec')
+export const generateRandomInt = (min: number, max: number) => Math.floor((Math.random() * max) + min)

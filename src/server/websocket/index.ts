@@ -1,14 +1,15 @@
-import { Server } from 'ws'
+import { Server as WSS } from 'ws'
 
-import Portal from '../../models/portal'
+import Server from '../../models/server'
 
 import WSEvent from './defs'
 import { createPubSubClient } from '../../config/redis.config'
 import handleMessage, { routeMessage } from './handlers'
+import Deployment from '../../models/deployment'
 
 const sub = createPubSubClient()
 
-export default (wss: Server) => {
+export default (wss: WSS) => {
     sub.on('message', (channel, data) => {
         console.log('recieved message on channel', channel, 'data', data)
         
@@ -40,15 +41,21 @@ export default (wss: Server) => {
         })
 
         socket.on('close', async () => {
-
             const id = socket['id'], type = socket['type']
             if(!id) return console.log('unknown socket closed')
 
             console.log('socket closed', id, type)
 
-            if(type === 'portal') {
-                const portal = await new Portal().load(id)
-                portal.updateStatus('closed')
+            if(type === 'server') {
+                const server  = await new Server().load(id)
+                server.destroy()
+
+                if(socket['deployment']) {
+                    const deploymentId = socket['deployment'],
+                            deployment = await new Deployment().load(deploymentId)
+
+                    deployment.destroy()
+                }
             }
         })
     })

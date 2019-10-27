@@ -13,7 +13,8 @@
       "allowSyntheticDefaultImports": true,
       "outDir": "./dist",
       "allowJs": true,
-      "resolveJsonModule": true
+      "resolveJsonModule": true,
+      "newLine": "LF"
     },
     "include": ["./src"]
 }

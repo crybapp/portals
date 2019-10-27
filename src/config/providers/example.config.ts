@@ -1,6 +1,6 @@
 export const createClient = () => {
     return {
-        createServer: async () => {},
-        destroyServer: async () => {}
+        createServer: async (name: string) => {},
+        destroyServer: async (name: string) => {}
     }
 }
