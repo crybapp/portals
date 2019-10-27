@@ -8,7 +8,7 @@ import {
     openServerInstance as closeK8SServerInstance
 } from './kubernetes.driver'
 
-type Driver = 'gcloud' | 'kubernetes' | null
+export type Driver = 'gcloud' | 'kubernetes' | 'example' | null
 
 export const fetchCurrentDriver = () => null as Driver
 

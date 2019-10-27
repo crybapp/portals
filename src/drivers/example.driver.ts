@@ -1,12 +1,14 @@
 // Import the API you wish to use
 import { createClient } from '../config/providers/example.config'
+import { registerDeployment, deregisterDeployment } from './utils/register.utils.driver'
 
 export const openServerInstance = async () => {
     const client = createClient()
 
     try {
         // Create the server using the API & Provider of your choice
-        await client.createServer()
+        const { name } = await registerDeployment('example')
+        await client.createServer(name)
 
         console.log(`opened portal using example.driver`)
     } catch(error) {
@@ -14,12 +16,13 @@ export const openServerInstance = async () => {
     }
 }
 
-export const closeServerInstance = async () => {
+export const closeServerInstance = async (name: string) => {
     const client = createClient()
 
     try {
         // Destroy the server using the id of the server you stored when creating the server
-        await client.destroyServer()
+        await deregisterDeployment(name)
+        await client.destroyServer(name)
 
         console.log(`closed portal using example.driver`)
     } catch(error) {

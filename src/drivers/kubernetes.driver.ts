@@ -3,6 +3,7 @@ import { V1Pod, V1Node, CoreV1Api } from '@kubernetes/client-node'
 import Portal from '../models/portal'
 
 import { createClient } from '../config/providers/kubernetes.config'
+import { registerDeployment, deregisterDeployment } from './utils/register.utils.driver'
 
 type Nodemap = {
     [key in string]: number
@@ -58,55 +59,55 @@ export const openServerInstance = async () => {
     const client = createClient()
     if(!client) throw 'The Kubernetes driver is incorrect. This may be due to improper ENV variables, please try again'
 
-    const name = `server-${Date.now()}`
-
     try {
-        const _pod = {
-            apiVersion: 'v1',
-            kind: 'Pod',
-            metadata: {
-                name,
-                labels: {
-                    name,
-                    kind: 'portal'
-                },
-                namespace: 'portals'
-            },
-            spec: {
-                volumes: [{
-                    name: 'dshm',
-                    emptyDir: {
-                        medium: 'Memory'
-                    }
-                }],
-                containers: [
-                    {
+        const { name } = await registerDeployment('kubernetes'),
+                _pod = {
+                    apiVersion: 'v1',
+                    kind: 'Pod',
+                    metadata: {
                         name,
-                        image: process.env.K8S_PORTAL_IMAGE_REGISTRY_URL,
-                        resources: {
-                            limits: {
-                                cpu: process.env.K8S_PORTAL_CPU_LIMIT,
-                                memory: process.env.K8S_PORTAL_MEMORY_LIMIT
-                            },
-                            requests: {
-                                cpu: process.env.K8S_PORTAL_CPU_REQUESTED,
-                                memory: process.env.K8S_PORTAL_MEMORY_REQUESTED
-                            }
+                        labels: {
+                            name,
+                            kind: 'portal'
                         },
-                        volumeMounts: [{
-                            mountPath: '/dev/shm',
-                            name: 'dshm'
+                        namespace: 'portals'
+                    },
+                    spec: {
+                        volumes: [{
+                            name: 'dshm',
+                            emptyDir: {
+                                medium: 'Memory'
+                            }
                         }],
-                        imagePullPolicy: 'Always',
-                        envFrom: [{
-                            secretRef: { name: process.env.K8S_PORTAL_ENV_SECRET }
-                        }],
-                        ports: [{ containerPort: 80 }]
+                        containers: [
+                            {
+                                name,
+                                image: process.env.K8S_PORTAL_IMAGE_REGISTRY_URL,
+                                resources: {
+                                    limits: {
+                                        cpu: process.env.K8S_PORTAL_CPU_LIMIT,
+                                        memory: process.env.K8S_PORTAL_MEMORY_LIMIT
+                                    },
+                                    requests: {
+                                        cpu: process.env.K8S_PORTAL_CPU_REQUESTED,
+                                        memory: process.env.K8S_PORTAL_MEMORY_REQUESTED
+                                    }
+                                },
+                                volumeMounts: [{
+                                    mountPath: '/dev/shm',
+                                    name: 'dshm'
+                                }],
+                                imagePullPolicy: 'Always',
+                                envFrom: [{
+                                    secretRef: { name: process.env.K8S_PORTAL_ENV_SECRET }
+                                }],
+                                ports: [{ containerPort: 80 }]
+                            }
+                        ],
+                        imagePullSecrets: [{ name: process.env.K8S_PORTAL_IMAGE_PULL_SECRET }]
                     }
-                ],
-                imagePullSecrets: [{ name: process.env.K8S_PORTAL_IMAGE_PULL_SECRET }]
-            }
-        } as V1Pod, { body: pod } = await client.createNamespacedPod('portals', _pod)
+                } as V1Pod,
+                { body: pod } = await client.createNamespacedPod('portals', _pod)
 
         console.log(`opened server using kubernetes.driver`)
     } catch(error) {
@@ -114,12 +115,13 @@ export const openServerInstance = async () => {
     }
 }
 
-export const closeServerInstance = async () => {
+export const closeServerInstance = async (name: string) => {
     const client = createClient()
     if(!client) throw 'The Kubernetes driver is incorrect. This may be due to improper ENV variables, please try again'
 
     try {
-        // const { body: status } = await client.deleteNamespacedPod(podName, 'portals')
+        await deregisterDeployment(name)
+        await client.deleteNamespacedPod(name, 'portals')
 
         console.log(`closed portal using kubernetes.driver`)
     } catch(error) {
