@@ -45,7 +45,7 @@ export const closePortalInstance = async (portal: Portal) => {
         // there's probably a different way this could/should be done
         if(server && server.id) {
             await client.servers.delete(server.id);
-        }
+        } else throw new Error('Portal doesn\'t exist');
 
         console.log(`closed portal with name ${portalName}`)
     } catch(error) {
