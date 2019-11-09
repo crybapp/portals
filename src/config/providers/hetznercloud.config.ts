@@ -1,4 +1,4 @@
-import hCloud = require('hcloud-js');
+import { Client } from 'hcloud-js';
 
 export const fetchCredentials = () => {
 	let credentials: any = process.env.HETZNER_API_KEY
@@ -11,5 +11,5 @@ export const createClient = () => {
 	const credentials = fetchCredentials()
 	if(!credentials) return null
 
-	return new hCloud.Client(credentials);
+	return new Client(credentials);
 }
