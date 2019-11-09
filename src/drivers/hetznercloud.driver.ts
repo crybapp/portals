@@ -5,8 +5,7 @@ import { closePortal } from './portal.driver'
 
 const { project_id: projectId } = fetchCredentials() || { project_id: null },
         zoneId = 'nbg1',
-        serverType = 'cx11',
-        baseUrl = `https://www.googleapis.com/compute/v1/projects/${projectId}/zones/${zoneId}/`
+        serverType = 'cx11'
 
 export const openPortalInstance = async (portal: Portal) => {
     const client = createClient()
