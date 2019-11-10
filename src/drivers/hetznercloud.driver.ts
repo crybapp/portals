@@ -18,7 +18,7 @@ export const openPortalInstance = async (portal: Portal) => {
         await client.servers.build(portalName)
                       .serverType(serverType)
                       .location(zoneId)
-                      .image('cryb') // create your own custom snapshot
+                      .image(9403290) // replace with your own custom snapshot
                       .create();
         
         
