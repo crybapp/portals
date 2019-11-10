@@ -18,7 +18,7 @@ export const openPortalInstance = async (portal: Portal) => {
         await client.servers.build(portalName)
                       .serverType(serverType)
                       .location(zoneId)
-                      .image('ubuntu-18.04') // tba: custom image
+                      .image('cryb') // create your own custom snapshot
                       .create();
         
         
@@ -39,12 +39,12 @@ export const closePortalInstance = async (portal: Portal) => {
     const portalName = `portal-${portal.id}`
 
     try {
-        const servers = await client.servers.list(); 
+        const servers = await client.servers.list({name: portalName}); 
         const server = servers.servers.find(a => a.name === portalName);
-        // there's probably a different way this could/should be done
+
         if(server && server.id) {
-            await client.servers.delete(server.id);
-        } else throw new Error('Portal doesn\'t exist');
+            await server.delete();
+        } else throw new Error('portal doesn\'t exist');
 
         console.log(`closed portal with name ${portalName}`)
     } catch(error) {
