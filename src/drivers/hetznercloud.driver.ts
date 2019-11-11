@@ -5,8 +5,7 @@ import { closePortal } from './portal.driver'
 
 const { project_id: projectId } = fetchCredentials() || { project_id: null },
         zoneId = 'nbg1',
-        serverType = 'cx11',
-        imageId = 1234567; // replace with your own custom snapshot: https://gist.github.com/69/a60838a5d67807da574edcfd3193af64
+        serverType = 'cx11';
 
 export const openPortalInstance = async (portal: Portal) => {
     const client = createClient()
@@ -19,7 +18,7 @@ export const openPortalInstance = async (portal: Portal) => {
         await client.servers.build(portalName)
                       .serverType(serverType)
                       .location(zoneId)
-                      .image(imageId)
+                      .image(process.env.HETZNER_IMAGE_ID)
                       .create(); 
         
         
