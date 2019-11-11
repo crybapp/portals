@@ -5,7 +5,7 @@ import { closePortal } from './portal.driver'
 
 const { project_id: projectId } = fetchCredentials() || { project_id: null },
         zoneId = 'nbg1',
-        serverType = 'cx11';
+        serverType = 'cx11'
 
 export const openPortalInstance = async (portal: Portal) => {
     const client = createClient()
@@ -19,7 +19,7 @@ export const openPortalInstance = async (portal: Portal) => {
                         .serverType(serverType)
                         .location(zoneId)
                         .image(process.env.HETZNER_IMAGE_ID)
-                        .create(); 
+                        .create() 
         
         
         await portal.updateStatus('starting')
@@ -39,12 +39,12 @@ export const closePortalInstance = async (portal: Portal) => {
     const portalName = `portal-${portal.id}`
 
     try {
-        const servers = await client.servers.list({name: portalName}); 
-        const server = servers.servers.find(a => a.name === portalName);
+        const servers = await client.servers.list({name: portalName}) 
+        const server = servers.servers.find(a => a.name === portalName)
 
         if(server && server.id) {
-            await server.delete();
-        } else throw new Error('portal doesn\'t exist');
+            await server.delete()
+        } else throw new Error('portal doesn\'t exist')
 
         console.log(`closed portal with name ${portalName}`)
     } catch(error) {
