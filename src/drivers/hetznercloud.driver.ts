@@ -16,10 +16,10 @@ export const openPortalInstance = async (portal: Portal) => {
     try {
         
         await client.servers.build(portalName)
-                      .serverType(serverType)
-                      .location(zoneId)
-                      .image(process.env.HETZNER_IMAGE_ID)
-                      .create(); 
+                        .serverType(serverType)
+                        .location(zoneId)
+                        .image(process.env.HETZNER_IMAGE_ID)
+                        .create(); 
         
         
         await portal.updateStatus('starting')
