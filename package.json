@@ -14,7 +14,7 @@
   "dependencies": {
     "@google-cloud/compute": "^1.1.5",
     "@kubernetes/client-node": "^0.11.0",
-    "aws-sdk": "^2.553.0",
+    "aws-sdk": "^2.569.0",
     "axios": "^0.19.0",
     "biguint-format": "^1.0.1",
     "dotenv": "^8.2.0",
