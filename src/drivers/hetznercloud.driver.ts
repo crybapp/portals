@@ -4,8 +4,8 @@ import { createClient, fetchCredentials } from '../config/providers/hetznercloud
 import { closePortal } from './portal.driver'
 
 const { project_id: projectId } = fetchCredentials() || { project_id: null },
-        zoneId = 'nbg1',
-        serverType = 'cx11'
+        zoneId = process.env.HETZNER_ZONE_ID || 'nbg1',
+        serverType = process.env.HETZNER_SERVER_TYPE || 'cx11'
 
 export const openPortalInstance = async (portal: Portal) => {
     const client = createClient()
