@@ -4,6 +4,8 @@ import { verify } from 'jsonwebtoken'
 import Portal from '../../models/portal'
 
 import WSEvent, { ClientType } from './defs'
+import Mountpoint from '../../models/mountpoint'
+import { closePortal } from '../../drivers/portal.driver'
 
 const ACCEPTABLE_CLIENT_TYPES: ClientType[] = ['portal'],
         isClientWithIdAndType = (id: string, type: ClientType) => (client: WebSocket) => client['id'] === id && client['type'] === type
@@ -28,6 +30,14 @@ const handleMessage = async (message: WSEvent, socket: WebSocket) => {
 
             if(type === 'portal') {
                 const portal = await new Portal().load(id)
+                const mountpoint = await new Mountpoint().load('Portal', id)
+
+                if(mountpoint.audioport == 0 || mountpoint.videoport == 0) {
+                    closePortal(id)
+                    throw `Janus mountpoint for portal: ${id}, was not created successfully. Aborting.`
+                }
+
+                socket.send({op: 10, d: {audioport: mountpoint.audioport, videoport: mountpoint.videoport}})
                 await portal.updateStatus('open')
             }
 
