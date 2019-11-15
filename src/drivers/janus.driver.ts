@@ -47,7 +47,7 @@ const createMountpointRequestBody = (transactionId, options) => {
     }
 }
 
-const createMountpointDeleteRequest = (transactionId, options) => {
+const deleteMountpointRequestBody = (transactionId, options) => {
     if(!options.Id)
         return
 
@@ -69,31 +69,36 @@ const getRandomString = (length: number) => {
 }
 
 const checkAndHandleError = (body) => new Promise(async (resolve, reject) => {
-    if(!body.error && !body.plugindata.data.error)
+    var hasPluginError = body?.plugindata?.data?.error
+    var hasBodyError = body?.error
+    if(!hasBodyError && !hasPluginError)
         resolve()
 
-    if(body.error.code == JANUS_SESSION_MISSING) {
-        try {
-            await createJanusSession()
-            if(janusStreamingHandleId)
+    if(hasBodyError) {
+        var errorCode = hasBodyError?.code
+        if(errorCode == JANUS_SESSION_MISSING) {
+            try {
+                await createJanusSession()
+                if(janusStreamingHandleId)
+                    await createJanusStreamingHandle()
+
+                resolve()
+            } catch(error) {
+                reject(error)
+            }
+        }
+
+        if(errorCode == JANUS_HANDLE_MISSING) {
+            try {
                 await createJanusStreamingHandle()
-
-            resolve()
-        } catch(error) {
-            reject(error)
+                resolve()
+            } catch(error) {
+                reject(error)
+            }
         }
     }
-
-    if(body.error.code == JANUS_HANDLE_MISSING) {
-        try {
-            await createJanusStreamingHandle()
-            resolve()
-        } catch(error) {
-            reject(error)
-        }
-    }
-
-    reject(body.error)
+    
+    reject(hasBodyError ?? hasPluginError)
 })
 
 const sendJanusRequest = (url: string, bodyFunction: (transactionId: string, options?: any) => void, options?: any)  =>  new Promise<AxiosResponse>(async (resolve, reject) => {
@@ -101,7 +106,7 @@ const sendJanusRequest = (url: string, bodyFunction: (transactionId: string, opt
     try {
         const axiosResponse = await axios.post(url, bodyFunction(transactionId, options))
 
-        if(axiosResponse.data.transaction != transactionId)
+        if(axiosResponse?.data?.transaction != transactionId)
             reject("transactionId doesn't match. possible Corruption or MitM attack.")
 
         await checkAndHandleError(axiosResponse.data)
@@ -111,18 +116,26 @@ const sendJanusRequest = (url: string, bodyFunction: (transactionId: string, opt
     }
 })
 
-//TODO: End on error.
-//This keeps our sessionId active so that we may continue to use it to generate requests.
 const keepJanusSessionAlive = async () => {
-    axios.get(url + `${janusSessionId}`)
-        .then(keepJanusSessionAlive)
+    try {
+        const axiosResponse = await axios.get(url + `${janusSessionId}`)
+        if(axiosResponse.data?.error) {
+            janusSessionId = null
+            janusStreamingHandleId = null
+            return
+        }
+        return keepJanusSessionAlive()
+    } catch (error) {
+        console.error("Couldn't communicate with janus. Session Terminated") 
+    }
+    
 }
 
 const createJanusSession = () => new Promise(async (resolve, reject) => {
     try{
         const janusResponse = await sendJanusRequest(url, createSessionRequestBody)
 
-        janusSessionId = +janusResponse.data.data.id
+        janusSessionId = +janusResponse?.data?.data?.id
         keepJanusSessionAlive() 
         resolve()
     } catch(error) {
@@ -134,7 +147,7 @@ const createJanusStreamingHandle = () => new Promise(async (resolve, reject) => 
     try {
         const janusResponse = await sendJanusRequest(url + `/${janusSessionId}`, createHandleRequestBody)
 
-        janusStreamingHandleId = +janusResponse.data.data.id
+        janusStreamingHandleId = +janusResponse?.data?.data?.id
         resolve()
     } catch(error) {
         reject(error)
@@ -149,9 +162,9 @@ export const createJanusStreamingMountpoint = (mountpoint: Mountpoint) => new Pr
         }
 
         const janusResponse = await sendJanusRequest(url + `/${janusSessionId}/${janusStreamingHandleId}`, createMountpointRequestBody)
-        const streamInfo = janusResponse.data.plugindata.data.streaming
+        const streamInfo = janusResponse?.data?.plugindata?.data?.streaming
 
-        await mountpoint.updateStreamInfo(+streamInfo.audioport, +streamInfo.videoport)
+        await mountpoint.updateStreamInfo(+streamInfo?.audioport, +streamInfo?.videoport)
         resolve()
     }
     catch(error) {
@@ -166,7 +179,7 @@ export const destroyJanusStramingMountpoint = (mountpoint: Mountpoint) => new Pr
             await createJanusStreamingHandle()
         }
 
-        await sendJanusRequest(url + `/${janusSessionId}/${janusStreamingHandleId}`, createMountpointRequestBody, {Id: mountpoint.id})
+        await sendJanusRequest(url + `/${janusSessionId}/${janusStreamingHandleId}`, deleteMountpointRequestBody, {Id: mountpoint.id})
         resolve()
     } catch (error) {
         reject(error)
