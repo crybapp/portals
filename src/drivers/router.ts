@@ -16,6 +16,11 @@ import {
 } from './kubernetes.driver'
 
 import {
+    openPortalInstance as openDOPortalInstance,
+    closePortalInstance as closeDOPortalInstance
+} from './digitalocean.driver'
+
+import {
     openPortalInstance as openManualPortalInstance,
     closePortalInstance as closeManualPortalInstance
 } from './manual.driver'
@@ -38,6 +43,9 @@ export const openPortalInstance = async (portal: Portal) => {
         case 'kubernetes':
             openK8SPortalInstance(portal)
             break
+        case 'digitalocean':
+            openDOPortalInstance(portal)
+            break
         case 'manual':
             openManualPortalInstance(portal)
             break
@@ -57,6 +65,9 @@ export const closePortalInstance = async (portal: Portal) => {
             break
         case 'kubernetes':
             closeK8SPortalInstance(portal)
+            break
+        case 'digitalocean':
+            closeDOPortalInstance(portal)
             break
         case 'manual':
             closeManualPortalInstance(portal)
