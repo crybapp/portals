@@ -1,10 +1,7 @@
 import Portal from '../models/portal'
 
-// Import the API you wish to use
 import { createClient } from '../config/providers/digitalocean.config'
 import { closePortal } from './portal.driver'
-import { domainToASCII } from 'url'
-
 
 export const openPortalInstance = async (portal: Portal) => {
     const client = createClient(),
@@ -30,8 +27,7 @@ export const openPortalInstance = async (portal: Portal) => {
 
 export const closePortalInstance = async (portal: Portal) => {
     const client = createClient(),
-            name = `portal-${portal.id}`,
-            { serverId } = portal
+            name = `portal-${portal.id}`
 
     try {
         const droplets = await client.droplet.listDroplets({tag_name: name})
