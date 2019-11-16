@@ -626,6 +626,13 @@ dotenv@^8.2.0:
   resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-8.2.0.tgz#97e619259ada750eea3e4ea3e26bceea5424b16a"
   integrity sha512-8sJ78ElpbDJBHNeBzUbUVLsqKdccaa/BXF1uPTw3GrvQTBgrQrtObr2mUrE38vzYd8cEv+m/JBfDLioYcfXoaw==
 
+dots-wrapper@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/dots-wrapper/-/dots-wrapper-3.0.0.tgz#e42c339cfe0b994850c037ec83d6146cf8b463a7"
+  integrity sha512-UMA6hG9Qct9e1KmwSY2Fj1yN6G0zXyNkoHgGurboz4waNvH8lzM3Fy54eQgc4mH6XIi6quvQgT9EVDFRDVJNhQ==
+  dependencies:
+    axios "^0.19.0"
+
 duplexer3@^0.1.4:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/duplexer3/-/duplexer3-0.1.4.tgz#ee01dd1cac0ed3cbc7fdbea37dc0a8f1ce002ce2"

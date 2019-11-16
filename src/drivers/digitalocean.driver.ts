@@ -1,0 +1,48 @@
+import Portal from '../models/portal'
+
+// Import the API you wish to use
+import { createClient } from '../config/providers/digitalocean.config'
+import { closePortal } from './portal.driver'
+import { domainToASCII } from 'url'
+
+
+export const openPortalInstance = async (portal: Portal) => {
+    const client = createClient(),
+            name = `portal-${portal.id}`
+
+    try {
+        await client.droplet.createDroplet({ name, 
+                                             region: process.env.DO_REGION || 'nyc3',
+                                             size: process.env.DO_SIZE || 's-1vcpu-1gb',
+                                             image: process.env.DO_IMAGE,
+                                             tags: [name]
+                                           })
+
+        await portal.updateStatus('starting')
+
+        console.log(`opened portal with name ${name}`)
+    } catch(error) {
+        closePortal(portal.id)
+
+        console.error('error while opening portal', error)
+    }
+}
+
+export const closePortalInstance = async (portal: Portal) => {
+    const client = createClient(),
+            name = `portal-${portal.id}`,
+            { serverId } = portal
+
+    try {
+        const droplets = await client.droplet.listDroplets({tag_name: name})
+        const droplet = droplets.data.droplets.find(droplet => droplet.name === name)
+
+        if (droplet && droplet.id) {
+            await client.droplet.deleteDroplet({ droplet_id: droplet.id })  
+        } else throw 'portal doesn\'t exist'
+
+        console.log(`closed portal with name ${name}`)
+    } catch(error) {
+        console.error('error while closing portal', error.response ? error.response.body : error)
+    }
+}
