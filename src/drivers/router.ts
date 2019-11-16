@@ -20,7 +20,7 @@ import {
     closePortalInstance as closeManualPortalInstance
 } from './manual.driver'
 
-type Driver = 'gcloud' | 'kubernetes' | 'hetznercloud' | 'manual'
+type Driver = 'gcloud' | 'kubernetes' | 'hetznercloud' | 'digitalocean' | 'manual'
 
 export const fetchCurrentDriver = () => 'manual' as Driver
 
