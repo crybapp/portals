@@ -7,6 +7,7 @@ const ModelSchema = new Schema({
         room: String,
         id: Number,
         portalId: Number,
+        janusId: Number,
 
         createdAt: Number,
         receivedAt: Number

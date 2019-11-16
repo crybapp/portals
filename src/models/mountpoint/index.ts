@@ -10,6 +10,7 @@ export default class Mountpoint {
     room: string
     id: number
     portalId: number
+    janusId: number
     createdAt: number
     receivedAt: number
     audioport: number
@@ -55,6 +56,7 @@ export default class Mountpoint {
                     name: `portalGateway-${portal.room}`,
                     room: portal.room,
                     portalId: +portal.id,
+                    janusId: -1,
     
                     createdAt: Date.now(),
                     receivedAt: portal.recievedAt
@@ -88,13 +90,15 @@ export default class Mountpoint {
         }
     })
 
-    updateStreamInfo = (audioport: number, videoport: number) => new Promise<Mountpoint>(async (resolve, reject) => {
+    updateStreamInfo = (janusId: number, audioport: number, videoport: number) => new Promise<Mountpoint>(async (resolve, reject) => {
         try {
+            console.log(janusId)
             await StoredMountpoint.updateOne({
                 'info.id': this.id
             },
             {
                 $set:{
+                    'info.janusId':janusId,
                     'stream.audioport':audioport,
                     'stream.videoport':videoport
                 }
@@ -114,6 +118,7 @@ export default class Mountpoint {
         this.name = json.info.name
         this.room = json.info.room
         this.portalId = json.info.portalId
+        this.janusId = json.info.janusId
 
         this.createdAt = json.info.createdAt
         this.receivedAt = json.info.receivedAt

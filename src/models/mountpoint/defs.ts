@@ -6,6 +6,7 @@ export default interface IMountpoint {
         room: string
         id: number
         portalId: number
+        janusId: number
 
         createdAt: number
         receivedAt: number

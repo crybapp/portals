@@ -22,8 +22,11 @@ const handleMessage = async (message: WSEvent, socket: WebSocket) => {
 
     if(op === 2) {
         try {
+            console.log("Verifying Token")
             const { token, type } = d, { id } = verify(token, process.env.PORTAL_KEY) as { id: string }
+            console.log("Checking Type")
             if(ACCEPTABLE_CLIENT_TYPES.indexOf(type) === -1) return socket.close(1013)
+            console.log("Saving variables")
 
             socket['id'] = id
             socket['type'] = type
@@ -37,7 +40,7 @@ const handleMessage = async (message: WSEvent, socket: WebSocket) => {
                     throw `Janus mountpoint for portal: ${id}, was not created successfully. Aborting.`
                 }
 
-                socket.send({op: 10, d: {audioport: mountpoint.audioport, videoport: mountpoint.videoport}})
+                socket.send(JSON.stringify({op: 10, d: {audioport: mountpoint.audioport, videoport: mountpoint.videoport}}))
                 await portal.updateStatus('open')
             }
 

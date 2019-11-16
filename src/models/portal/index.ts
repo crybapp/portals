@@ -8,6 +8,8 @@ import StoredPortal from '../../schemas/portal.schema'
 
 import { generateFlake } from '../../utils/generate.utils'
 import { createPubSubClient } from '../../config/redis.config'
+import StoredMountpoint from '../../schemas/mountpoint.schema'
+import Mountpoint from '../mountpoint'
 
 const pub = createPubSubClient()
 
@@ -98,10 +100,17 @@ export default class Portal {
                 }
             })
 
+            let janusId = -1
+
+            if(status === 'open') {
+                const mountpoint = await new Mountpoint().load('Portal', this.id)
+                janusId = mountpoint.janusId 
+            }
+
             /**
              * Update API on status of portal
              */
-            await axios.put(`${process.env.API_URL}/internal/portal`, { id: this.id, status }, {
+            await axios.put(`${process.env.API_URL}/internal/portal`, { id: this.id, status, janusId }, {
                 headers: {
                     authorization: `Valve ${sign({}, process.env.API_KEY)}`
                 }

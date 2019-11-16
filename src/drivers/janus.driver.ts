@@ -9,7 +9,7 @@ import Mountpoint from '../models/mountpoint'
 const JANUS_SESSION_MISSING = 458
 const JANUS_HANDLE_MISSING = 459
 
-const url = `${process.env.JANUS_URL}/janus`
+const url = `${process.env.JANUS_URL}/janus/`
 const admin_key = `${process.env.JANUS_STREAMING_ADMIN_KEY}`
 
 const createSessionRequestBody = (transactionId, options) => {
@@ -37,8 +37,8 @@ const createMountpointRequestBody = (transactionId, options) => {
             type: "rtp",
             video: true,
             audio: true,
-            videoopt: 100,
-            audioopt: 111,
+            videopt: 100,
+            audiopt: 111,
             videortpmap: "H264/90000",
             audiortpmap: "opus/48000/2",
             videoport: 0,
@@ -93,6 +93,7 @@ const checkAndHandleError = (body) => new Promise(async (resolve, reject) => {
                 await createJanusStreamingHandle()
                 resolve()
             } catch(error) {
+                console.error(error)
                 reject(error)
             }
         }
@@ -112,6 +113,7 @@ const sendJanusRequest = (url: string, bodyFunction: (transactionId: string, opt
         await checkAndHandleError(axiosResponse.data)
         resolve(axiosResponse)
     } catch (error) {
+        console.error(error)
         reject(error)
     }
 })
@@ -139,17 +141,19 @@ const createJanusSession = () => new Promise(async (resolve, reject) => {
         keepJanusSessionAlive() 
         resolve()
     } catch(error) {
+        console.error(error)
         reject(error)
     }
 })
 
 const createJanusStreamingHandle = () => new Promise(async (resolve, reject) => {
     try {
-        const janusResponse = await sendJanusRequest(url + `/${janusSessionId}`, createHandleRequestBody)
+        const janusResponse = await sendJanusRequest(url + `${janusSessionId}`, createHandleRequestBody)
 
         janusStreamingHandleId = +janusResponse?.data?.data?.id
         resolve()
     } catch(error) {
+        console.error(error)
         reject(error)
     }
 })
@@ -161,13 +165,16 @@ export const createJanusStreamingMountpoint = (mountpoint: Mountpoint) => new Pr
             await createJanusStreamingHandle()
         }
 
-        const janusResponse = await sendJanusRequest(url + `/${janusSessionId}/${janusStreamingHandleId}`, createMountpointRequestBody)
-        const streamInfo = janusResponse?.data?.plugindata?.data?.streaming
+        const janusResponse = await sendJanusRequest(url + `${janusSessionId}/${janusStreamingHandleId}`, createMountpointRequestBody)
+        const streamInfo = janusResponse?.data?.plugindata?.data?.stream
 
-        await mountpoint.updateStreamInfo(+streamInfo?.audioport, +streamInfo?.videoport)
+        console.log(streamInfo)
+
+        await mountpoint.updateStreamInfo(+streamInfo?.id, +streamInfo?.audio_port, +streamInfo?.video_port)
         resolve()
     }
     catch(error) {
+        console.error(error)
         reject(error)
     }
 })
@@ -179,9 +186,14 @@ export const destroyJanusStramingMountpoint = (mountpoint: Mountpoint) => new Pr
             await createJanusStreamingHandle()
         }
 
-        await sendJanusRequest(url + `/${janusSessionId}/${janusStreamingHandleId}`, deleteMountpointRequestBody, {Id: mountpoint.id})
+        if(mountpoint.janusId < 0) {
+            resolve()
+        }
+
+        await sendJanusRequest(url + `${janusSessionId}/${janusStreamingHandleId}`, deleteMountpointRequestBody, {Id: mountpoint.janusId})
         resolve()
     } catch (error) {
+        console.error(error)
         reject(error)
     }
 })
