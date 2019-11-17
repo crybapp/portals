@@ -9,7 +9,7 @@ const { project_id: projectId } = fetchCredentials() || { project_id: null },
 
 export const openPortalInstance = async (portal: Portal) => {
     const client = createClient()
-    if(!client) throw 'The Hetzner Cloud driver is incorrect. This may be due to improper ENV variables, please try again'
+    if(!client) throw 'The Hetzner Cloud driver configuration is incorrect. This may be due to improper ENV variables, please check'
 
     const portalName = `portal-${portal.id}`
 
@@ -34,7 +34,7 @@ export const openPortalInstance = async (portal: Portal) => {
 
 export const closePortalInstance = async (portal: Portal) => {
     const client = createClient()
-    if(!client) throw 'The Hetzner Cloud driver is incorrect. This may be due to improper ENV variables, please try again'
+    if(!client) throw 'The Hetzner Cloud driver configuration is incorrect. This may be due to improper ENV variables, please check'
 
     const portalName = `portal-${portal.id}`
 

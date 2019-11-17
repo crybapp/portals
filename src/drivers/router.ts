@@ -6,14 +6,14 @@ import {
 } from './gcloud.driver'
 
 import {
-    openPortalInstance as openHCloudPortalInstance,
-    closePortalInstance as closeHCloudPortalInstance
-} from './hetznercloud.driver'
-
-import {
     openPortalInstance as openK8SPortalInstance,
     closePortalInstance as closeK8SPortalInstance
 } from './kubernetes.driver'
+
+import {
+    openPortalInstance as openDockerPortalInstance,
+    closePortalInstance as closeDockerPortalInstance
+} from './docker.driver'
 
 import {
     openPortalInstance as openDOPortalInstance,
@@ -21,11 +21,16 @@ import {
 } from './digitalocean.driver'
 
 import {
+    openPortalInstance as openHCloudPortalInstance,
+    closePortalInstance as closeHCloudPortalInstance
+} from './hetznercloud.driver'
+
+import {
     openPortalInstance as openManualPortalInstance,
     closePortalInstance as closeManualPortalInstance
 } from './manual.driver'
 
-type Driver = 'gcloud' | 'kubernetes' | 'hetznercloud' | 'digitalocean' | 'manual'
+type Driver = 'docker' | 'digitalocean' | 'hetznercloud' | 'gcloud' | 'kubernetes' | 'manual'
 
 export const fetchCurrentDriver = () => process.env.DRIVER || 'manual' as Driver
 
@@ -34,17 +39,20 @@ export const openPortalInstance = async (portal: Portal) => {
     console.log('using driver', driver, 'to open portal with id', portal.id)
 
     switch(driver) {
-        case 'gcloud':
-            openGCloudPortalInstance(portal)
+        case 'docker':
+            openDockerPortalInstance(portal)
+            break
+        case 'digitalocean':
+            openDOPortalInstance(portal)
             break
         case 'hetznercloud':
             openHCloudPortalInstance(portal)
             break
+        case 'gcloud':
+            openGCloudPortalInstance(portal)
+            break
         case 'kubernetes':
             openK8SPortalInstance(portal)
-            break
-        case 'digitalocean':
-            openDOPortalInstance(portal)
             break
         case 'manual':
             openManualPortalInstance(portal)
@@ -57,17 +65,20 @@ export const closePortalInstance = async (portal: Portal) => {
     console.log('using driver', driver, 'to open portal with id', portal.id)
 
     switch(driver) {
-        case 'gcloud':
-            closeGCloudPortalInstance(portal)
+        case 'docker':
+            closeDockerPortalInstance(portal)
+            break
+        case 'digitalocean':
+            closeDOPortalInstance(portal)
             break
         case 'hetznercloud':
             closeHCloudPortalInstance(portal)
             break
+        case 'gcloud':
+            closeGCloudPortalInstance(portal)
+            break
         case 'kubernetes':
             closeK8SPortalInstance(portal)
-            break
-        case 'digitalocean':
-            closeDOPortalInstance(portal)
             break
         case 'manual':
             closeManualPortalInstance(portal)

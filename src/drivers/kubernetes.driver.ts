@@ -34,7 +34,7 @@ export const isNodeAvailable = async () => !!(await fetchAvailableNode())
 
 export const fetchAvailableNode = (client?: CoreV1Api) => new Promise<V1Node>(async (resolve, reject) => {
     if(!client) client = createClient()
-    if(!client) throw 'The Kubernetes driver is incorrect. This may be due to improper ENV variables, please try again'
+    if(!client) throw 'The Kubernetes driver configuration is incorrect. This may be due to improper ENV variables, please check'
 
     try {
         const { body: nodes } = await client.listNode()
@@ -57,7 +57,7 @@ export const fetchAvailableNode = (client?: CoreV1Api) => new Promise<V1Node>(as
 
 export const openPortalInstance = async (portal: Portal) => {
     const client = createClient()
-    if(!client) throw 'The Kubernetes driver is incorrect. This may be due to improper ENV variables, please try again'
+    if(!client) throw 'The Kubernetes driver configuration is incorrect. This may be due to improper ENV variables, please check'
 
     const name = `portal-${portal.id}`
 

@@ -4,12 +4,12 @@ import { createClient, fetchCredentials } from '../config/providers/gcloud.confi
 import { closePortal } from './portal.driver'
 
 const { project_id: projectId } = fetchCredentials() || { project_id: null },
-        zoneId = 'us-east1-b',
+        zoneId = process.env.GOOGLE_ZONE_ID || 'us-east1-b',
         baseUrl = `https://www.googleapis.com/compute/v1/projects/${projectId}/zones/${zoneId}/`
 
 export const openPortalInstance = async (portal: Portal) => {
     const client = createClient()
-    if(!client) throw 'The Google Cloud driver is incorrect. This may be due to improper ENV variables, please try again'
+    if(!client) throw 'The Google Cloud driver configuration is incorrect. This may be due to improper ENV variables, please check'
 
     const portalName = `portal-${portal.id}`
 
@@ -37,7 +37,7 @@ export const openPortalInstance = async (portal: Portal) => {
 
 export const closePortalInstance = async (portal: Portal) => {
     const client = createClient()
-    if(!client) throw 'The Google Cloud driver is incorrect. This may be due to improper ENV variables, please try again'
+    if(!client) throw 'The Google Cloud driver configuration is incorrect. This may be due to improper ENV variables, please check'
 
     const portalName = `portal-${portal.id}`
 
