@@ -47,8 +47,10 @@ export default (wss: Server) => {
             console.log('socket closed', id, type)
 
             if(type === 'portal') {
-                const portal = await new Portal().load(id)
-                portal.updateStatus('closed')
+                try {
+                    const portal = await new Portal().load(id)
+                    portal.updateStatus('closed')
+                } catch(error) {} // Fails when it was deleted, so can be ignored
             }
         })
     })
