@@ -9,12 +9,15 @@ export const openPortalInstance = async (portal: Portal) => {
     if(!client) throw 'The DigitalOcean driver is incorrect. This may be due to improper ENV variables, please try again'
 
     try {
-        await client.droplet.createDroplet({ name, 
-                                             region: process.env.DO_REGION || 'nyc3',
-                                             size: process.env.DO_SIZE || 's-1vcpu-1gb',
-                                             image: process.env.DO_IMAGE,
-                                             tags: [name]
-                                           })
+        await client.droplet.createDroplet({
+            name, 
+            region: process.env.DO_REGION || 'nyc3',
+            size: process.env.DO_SIZE || 's-1vcpu-1gb',
+            image: process.env.DO_IMAGE,
+            backups: false,
+            ipv6: true,
+            tags: [name]
+        })
 
         await portal.updateStatus('starting')
 
