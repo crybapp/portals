@@ -16,11 +16,16 @@ import {
 } from './kubernetes.driver'
 
 import {
+    openPortalInstance as openDOPortalInstance,
+    closePortalInstance as closeDOPortalInstance
+} from './digitalocean.driver'
+
+import {
     openPortalInstance as openManualPortalInstance,
     closePortalInstance as closeManualPortalInstance
 } from './manual.driver'
 
-type Driver = 'gcloud' | 'kubernetes' | 'hetznercloud' | 'manual'
+type Driver = 'gcloud' | 'kubernetes' | 'hetznercloud' | 'digitalocean' | 'manual'
 
 export const fetchCurrentDriver = () => 'manual' as Driver
 
@@ -37,6 +42,9 @@ export const openPortalInstance = async (portal: Portal) => {
             break
         case 'kubernetes':
             openK8SPortalInstance(portal)
+            break
+        case 'digitalocean':
+            openDOPortalInstance(portal)
             break
         case 'manual':
             openManualPortalInstance(portal)
@@ -57,6 +65,9 @@ export const closePortalInstance = async (portal: Portal) => {
             break
         case 'kubernetes':
             closeK8SPortalInstance(portal)
+            break
+        case 'digitalocean':
+            closeDOPortalInstance(portal)
             break
         case 'manual':
             closeManualPortalInstance(portal)
