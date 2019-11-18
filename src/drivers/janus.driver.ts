@@ -39,7 +39,7 @@ const createMountpointRequestBody = (transactionId, options) => {
             audio: true,
             videopt: 100,
             audiopt: 111,
-            videortpmap: "H264/90000",
+            videortpmap: "VP8/90000",
             audiortpmap: "opus/48000/2",
             videoport: 0,
             audioport: 0

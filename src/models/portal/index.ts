@@ -104,7 +104,7 @@ export default class Portal {
 
             if(status === 'open') {
                 const mountpoint = await new Mountpoint().load('Portal', this.id)
-                janusId = mountpoint.janusId 
+                janusId = mountpoint.janusId
             }
 
             /**
