@@ -18,7 +18,7 @@
     "biguint-format": "^1.0.1",
     "dockerode": "^3.0.2",
     "dotenv": "^8.2.0",
-    "dots-wrapper": "^3.0.0",
+    "dots-wrapper": "^3.0.1",
     "express": "^4.17.1",
     "flake-idgen": "^1.1.2",
     "google-auth-library": "^5.5.0",
