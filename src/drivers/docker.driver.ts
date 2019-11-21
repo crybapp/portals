@@ -15,6 +15,7 @@ export const openPortalInstance = async (portal: Portal) => {
             image: process.env.DOCKER_IMAGE || 'cryb/portal',
             autoRemove: true,
             networkMode: 'bridge',
+            shmSize: parseInt(process.env.DOCKER_SHM_SIZE || '1024') * 1048576
         })
         await container.start()
 
