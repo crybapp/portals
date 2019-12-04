@@ -17,10 +17,10 @@
     retry-request "^4.0.0"
     teeny-request "^5.2.1"
 
-"@google-cloud/compute@^1.1.5":
-  version "1.1.5"
-  resolved "https://registry.yarnpkg.com/@google-cloud/compute/-/compute-1.1.5.tgz#cc7d5664f4ec48886620fe8f106b15f095f766e0"
-  integrity sha512-Uc4Le4vXFEJg8yXsh60jgEiBDFOAw9auAQkZIkrdqgfZ53UtLifSQTuKJdaZ6YUzWkudHGQyTVAxl7aekJqgEg==
+"@google-cloud/compute@^1.1.7":
+  version "1.1.7"
+  resolved "https://registry.yarnpkg.com/@google-cloud/compute/-/compute-1.1.7.tgz#e22b3e7ba0fbe39fcbd8fb0ff6ea78f8b1639d21"
+  integrity sha512-oONCdJmbxZXBLB5D2eonU+aFGNtAOWK/FNRogzlDYV0vTh8Utu4UXVFzscFHezL9ULVzSjQWGBwpPDhpYdDCGQ==
   dependencies:
     "@google-cloud/common" "^2.0.0"
     "@google-cloud/paginator" "^2.0.0"
