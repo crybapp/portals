@@ -101,16 +101,18 @@ export default class Portal {
             })
 
             let janusId = -1
+            let janusIp = "0.0.0.0"
 
             if(status === 'open') {
                 const mountpoint = await new Mountpoint().load('Portal', this.id)
                 janusId = mountpoint.janusId
+                janusIp = mountpoint.janusIp
             }
 
             /**
              * Update API on status of portal
              */
-            await axios.put(`${process.env.API_URL}/internal/portal`, { id: this.id, status, janusId }, {
+            await axios.put(`${process.env.API_URL}/internal/portal`, { id: this.id, status, janusId, janusIp }, {
                 headers: {
                     authorization: `Valve ${sign({}, process.env.API_KEY)}`
                 }

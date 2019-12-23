@@ -9,6 +9,7 @@ import authenticate from '../server/middleware/authenticate.middleware'
 const app = express()
 
 app.post('/create', authenticate, (req, res) => {
+    console.log("Create request received from API")
     const { roomId } = req.body, request: PortalRequest = { roomId, recievedAt: Date.now() }
     pushQueue(request)
     

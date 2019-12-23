@@ -1,16 +1,17 @@
 /*
  * TODO:
- * Refactor requests to check transaction implicitly
  * generalize error handling
  */
+import dns from 'dns'
 import axios, { AxiosResponse } from 'axios'
 import Mountpoint from '../models/mountpoint'
 
 const JANUS_SESSION_MISSING = 458
 const JANUS_HANDLE_MISSING = 459
 
-const url = `${process.env.JANUS_URL}/janus/`
-const admin_key = `${process.env.JANUS_STREAMING_ADMIN_KEY}`
+const JANUS_HOSTNAME = process.env.JANUS_HOSTNAME
+const JANUS_PORT = process.env.JANUS_PORT
+const JANUS_ADMIN_KEY = process.env.JANUS_STREAMING_ADMIN_KEY
 
 const createSessionRequestBody = (transactionId, options) => {
     return {
@@ -33,7 +34,7 @@ const createMountpointRequestBody = (transactionId, options) => {
         transaction: transactionId,
         body: {
             request: "create",
-            admin_key: admin_key,
+            admin_key: JANUS_ADMIN_KEY,
             type: "rtp",
             video: true,
             audio: true,
@@ -61,9 +62,6 @@ const deleteMountpointRequestBody = (transactionId, options) => {
     }
 }
 
-let janusSessionId: number
-let janusStreamingHandleId: number
-
 const getRandomString = (length: number) => {
     return Math.round((Math.pow(36, length + 1) - Math.random() * Math.pow(36, length))).toString(36).slice(1);
 }
@@ -73,31 +71,6 @@ const checkAndHandleError = (body) => new Promise(async (resolve, reject) => {
     var hasBodyError = body?.error
     if(!hasBodyError && !hasPluginError)
         resolve()
-
-    if(hasBodyError) {
-        var errorCode = hasBodyError?.code
-        if(errorCode == JANUS_SESSION_MISSING) {
-            try {
-                await createJanusSession()
-                if(janusStreamingHandleId)
-                    await createJanusStreamingHandle()
-
-                resolve()
-            } catch(error) {
-                reject(error)
-            }
-        }
-
-        if(errorCode == JANUS_HANDLE_MISSING) {
-            try {
-                await createJanusStreamingHandle()
-                resolve()
-            } catch(error) {
-                console.error(error)
-                reject(error)
-            }
-        }
-    }
     
     reject(hasBodyError ?? hasPluginError)
 })
@@ -118,40 +91,24 @@ const sendJanusRequest = (url: string, bodyFunction: (transactionId: string, opt
     }
 })
 
-const keepJanusSessionAlive = async () => {
-    try {
-        const axiosResponse = await axios.get(url + `${janusSessionId}`)
-        if(axiosResponse.data?.error) {
-            janusSessionId = null
-            janusStreamingHandleId = null
-            return
-        }
-        return keepJanusSessionAlive()
-    } catch (error) {
-        console.error("Couldn't communicate with janus. Session Terminated") 
-    }
-    
-}
-
-const createJanusSession = () => new Promise(async (resolve, reject) => {
+const createJanusSession = (url: string) => new Promise<string>(async (resolve, reject) => {
     try{
         const janusResponse = await sendJanusRequest(url, createSessionRequestBody)
 
-        janusSessionId = +janusResponse?.data?.data?.id
-        keepJanusSessionAlive() 
-        resolve()
+        const janusSessionId: string = janusResponse?.data?.data?.id
+        resolve(janusSessionId)
     } catch(error) {
         console.error(error)
         reject(error)
     }
 })
 
-const createJanusStreamingHandle = () => new Promise(async (resolve, reject) => {
+const createJanusStreamingHandle = (url: string, sessionId: string) => new Promise<string>(async (resolve, reject) => {
     try {
-        const janusResponse = await sendJanusRequest(url + `${janusSessionId}`, createHandleRequestBody)
+        const janusResponse = await sendJanusRequest(url + sessionId, createHandleRequestBody)
 
-        janusStreamingHandleId = +janusResponse?.data?.data?.id
-        resolve()
+        const janusStreamingHandleId: string = janusResponse?.data?.data?.id
+        resolve(janusStreamingHandleId)
     } catch(error) {
         console.error(error)
         reject(error)
@@ -160,37 +117,38 @@ const createJanusStreamingHandle = () => new Promise(async (resolve, reject) => 
 
 export const createJanusStreamingMountpoint = (mountpoint: Mountpoint) => new Promise(async (resolve, reject) => {
     try{
-        if(!janusSessionId) {
-            await createJanusSession()
-            await createJanusStreamingHandle()
-        }
+        const janusAddress = await dns.promises.lookup(JANUS_HOSTNAME)
+        const janusUrl = `http://${janusAddress.address}:${JANUS_PORT}/janus/`
 
-        const janusResponse = await sendJanusRequest(url + `${janusSessionId}/${janusStreamingHandleId}`, createMountpointRequestBody)
+        const janusSessionId = await createJanusSession(janusUrl)
+        const janusHandleId = await createJanusStreamingHandle(janusUrl, janusSessionId)
+
+        const janusResponse = await sendJanusRequest(janusUrl + `${janusSessionId}/${janusHandleId}`, createMountpointRequestBody)
         const streamInfo = janusResponse?.data?.plugindata?.data?.stream
 
         console.log(streamInfo)
 
-        await mountpoint.updateStreamInfo(+streamInfo?.id, +streamInfo?.audio_port, +streamInfo?.video_port)
+        await mountpoint.updateStreamInfo(+streamInfo?.id, janusAddress.address, +streamInfo?.audio_port, +streamInfo?.video_port)
         resolve()
     }
     catch(error) {
         console.error(error)
-        reject(error)
+        reject(error) 
     }
 })
 
 export const destroyJanusStramingMountpoint = (mountpoint: Mountpoint) => new Promise(async (resolve, reject) => {
     try {
-        if(!janusSessionId) {
-            await createJanusSession()
-            await createJanusStreamingHandle()
-        }
+        const janusUrl = `http://${mountpoint.janusIp}:${JANUS_PORT}/janus/`
+
+        const janusSessionId = await createJanusSession(janusUrl)
+        const janusHandleId = await createJanusStreamingHandle(janusUrl, janusSessionId)
 
         if(mountpoint.janusId < 0) {
             resolve()
         }
 
-        await sendJanusRequest(url + `${janusSessionId}/${janusStreamingHandleId}`, deleteMountpointRequestBody, {Id: mountpoint.janusId})
+        await sendJanusRequest(janusUrl + `${janusSessionId}/${janusHandleId}`, deleteMountpointRequestBody, {Id: mountpoint.janusId})
         resolve()
     } catch (error) {
         console.error(error)

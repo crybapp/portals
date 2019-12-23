@@ -33,14 +33,21 @@ const handleMessage = async (message: WSEvent, socket: WebSocket) => {
 
             if(type === 'portal') {
                 const portal = await new Portal().load(id)
-                const mountpoint = await new Mountpoint().load('Portal', id)
 
-                if(mountpoint.audioport == 0 || mountpoint.videoport == 0) {
-                    closePortal(id)
-                    throw `Janus mountpoint for portal: ${id}, was not created successfully. Aborting.`
+
+                if(process.env.JANUS_ENABLE == "true") {
+                    const mountpoint = await new Mountpoint().load('Portal', id)
+
+                    if(mountpoint.audioport == 0 || mountpoint.videoport == 0) {
+                        closePortal(id)
+                        throw `Janus mountpoint for portal: ${id}, was not created successfully. Aborting.`
+                    }
+    
+                    socket.send(JSON.stringify({op: 10, d: {audioport: mountpoint.audioport, videoport: mountpoint.videoport, janusAddress: mountpoint.janusIp}}))
+                } else {
+                    socket.send(JSON.stringify({op: 20, d: {apertureAddress: process.env.APERTURE_URL, aperturePort: process.env.APERTURE_PORT}}))
                 }
 
-                socket.send(JSON.stringify({op: 10, d: {audioport: mountpoint.audioport, videoport: mountpoint.videoport}}))
                 await portal.updateStatus('open')
             }
 

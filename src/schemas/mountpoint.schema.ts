@@ -8,6 +8,7 @@ const ModelSchema = new Schema({
         id: Number,
         portalId: Number,
         janusId: Number,
+        janusIp: String,
 
         createdAt: Number,
         receivedAt: Number
