@@ -16,5 +16,5 @@ jobs:
       with:
         username: neoncloth
         personalAccessToken: ${{ secrets.personalAccessToken }}
-        imageName: master
+        imageName: portals-master
         imageTag: latest
