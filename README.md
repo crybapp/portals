@@ -1,6 +1,6 @@
 ![Cryb OSS](.github/portals-icon.png "@cryb/portals Logo")
 
-_**Portals** - VM microservice_
+_**Portals** — VM microservice_
 
 [![GitHub contributors](https://img.shields.io/github/contributors/crybapp/portals)](https://github.com/crybapp/portals/graphs/contributors) [![License](https://img.shields.io/github/license/crybapp/portals)](https://github.com/crybapp/portals/blob/master/LICENSE) [![Patreon Donate](https://img.shields.io/badge/donate-Patreon-red.svg)](https://patreon.com/cryb)
 
@@ -57,9 +57,9 @@ The following services need to be installed for `@cryb/portals` to function:
 
 * MongoDB
 * Redis
-* `@cryb/api`
 
-We recommend that you run the following services alongside `@cryb/portals`, but it's not required.
+We recommend that you run the following services alongside `@cryb/portals`, but they're not required.
+* `@cryb/api`
 * `@cryb/web`
 * `@cryb/aperture`
 
