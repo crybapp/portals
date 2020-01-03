@@ -1,4 +1,4 @@
-import { KubeConfig, CoreV1Api } from '@kubernetes/client-node'
+import { CoreV1Api, KubeConfig } from '@kubernetes/client-node'
 
 export const createClient = () => {
 	const config = new KubeConfig()
