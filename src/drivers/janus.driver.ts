@@ -117,8 +117,7 @@ const createJanusStreamingHandle = (url: string, sessionId: string) => new Promi
 
 export const createJanusStreamingMountpoint = (mountpoint: Mountpoint) => new Promise(async (resolve, reject) => {
     try{
-        const janusAddress = await dns.promises.lookup(JANUS_HOSTNAME)
-        const janusUrl = `http://${janusAddress.address}:${JANUS_PORT}/janus/`
+        const janusUrl = `http://${JANUS_HOSTNAME}:${JANUS_PORT}/janus/`
 
         const janusSessionId = await createJanusSession(janusUrl)
         const janusHandleId = await createJanusStreamingHandle(janusUrl, janusSessionId)
@@ -128,7 +127,7 @@ export const createJanusStreamingMountpoint = (mountpoint: Mountpoint) => new Pr
 
         console.log(streamInfo)
 
-        await mountpoint.updateStreamInfo(+streamInfo?.id, janusAddress.address, +streamInfo?.audio_port, +streamInfo?.video_port)
+        await mountpoint.updateStreamInfo(+streamInfo?.id, JANUS_HOSTNAME, +streamInfo?.audio_port, +streamInfo?.video_port)
         resolve()
     }
     catch(error) {
