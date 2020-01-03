@@ -7,7 +7,6 @@ import StoredPortal from '../../schemas/portal.schema'
 import IPortal from './defs'
 
 import { createPubSubClient } from '../../config/redis.config'
-import StoredMountpoint from '../../schemas/mountpoint.schema'
 import { generateFlake } from '../../utils/generate.utils'
 import Mountpoint from '../mountpoint'
 
@@ -103,10 +102,11 @@ export default class Portal {
 						let janusId = -1
 						let janusIp = '0.0.0.0'
 
-						if (status === 'open') {
+						if (status === 'open' && process.env.JANUS_ENABLE === 'true') {
 								const mountpoint = await new Mountpoint().load('Portal', this.id)
 								janusId = mountpoint.janusId
 								janusIp = mountpoint.janusIp
+
 						}
 
 						/*
