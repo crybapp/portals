@@ -9,15 +9,15 @@ import WSEvent, { ClientType } from './defs'
 
 const ACCEPTABLE_CLIENT_TYPES: ClientType[] = ['portal'],
 	isClientWithIdAndType = (id: string, type: ClientType) => (client: WebSocket) =>
-		client.id === id && client.type === type
+		client['id'] === id && client['type'] === type
 
 /**
  * Message incoming from Portal over WS
  */
 const handleMessage = async (message: WSEvent, socket: WebSocket) => {
 		const { op, d, t } = message,
-						clientId = socket.id,
-						clientType = socket.type
+						clientId = socket['id'],
+						clientType = socket['type']
 
 		console.log(`recieved message from ${clientType} (${clientId || 'unknown'}) over ws`, op, t)
 
@@ -29,8 +29,8 @@ const handleMessage = async (message: WSEvent, socket: WebSocket) => {
 						if (ACCEPTABLE_CLIENT_TYPES.indexOf(type) === -1) return socket.close(1013)
 						console.log('Saving variables')
 
-						socket.id = id
-						socket.type = type
+						socket['id'] = id
+						socket['type'] = type
 
 						if (type === 'portal') {
 								const portal = await new Portal().load(id)

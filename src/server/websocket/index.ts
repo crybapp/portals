@@ -41,7 +41,7 @@ export default (wss: Server) => {
 
 		socket.on('close', async () => {
 
-			const id = socket.id, type = socket.type
+			const id = socket['id'], type = socket['type']
 			if (!id) return console.log('unknown socket closed')
 
 			console.log('socket closed', id, type)
