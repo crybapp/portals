@@ -1,50 +1,50 @@
 import Portal from '../models/portal'
-import digitalOcean, { digitalOceanImageId, digitalOceanDropletSize } from '../config/providers/digitalocean.config'
+
+import { createClient } from '../config/providers/digitalocean.config'
 import { closePortal } from './portal.driver'
 
 export const openPortalInstance = async (portal: Portal) => {
-    const name = `portal-${portal.id}`
+	const client = createClient(),
+		name = `portal-${portal.id}`
+	if (!client) throw new Error('The DigitalOcean driver configuration is incorrect. This may be due to improper ENV variables, please check')
 
-    try {
-        let dropletSpecs = {
-            name:name,
-            region:"nyc3",
-            size:digitalOceanDropletSize,
-            image: digitalOceanImageId,
-            backups:false,
-            ipv6:true,
-            tags: ["stream", portal.id]
-        }
+	try {
+		await client.droplet.createDroplet({
+			name,
+			region: process.env.DO_REGION || 'nyc3',
+			size: process.env.DO_SIZE || 's-1vcpu-1gb',
+			image: process.env.DO_IMAGE,
+			backups: false,
+			ipv6: true,
+			tags: [name]
+		})
 
-        digitalOcean.Droplet.create(dropletSpecs).subscribe(
-            dropletInfo => async function() {
-                console.log(dropletInfo)
-                await portal.updateServerId(dropletInfo.id.toString())
-            },
-            err => console.log(err.message),
-            () => console.log("CreateDropletComplete")
-        )
+		await portal.updateStatus('starting')
 
-        await portal.updateStatus('starting')
+		console.log(`opened portal with name ${name}`)
+	} catch (error) {
+		closePortal(portal.id)
 
-        console.log(`opened portal with name ${name}`)
-    } catch(error) {
-        closePortal(portal.id)
-
-        console.error('error while opening portal', error)
-    }
+		console.error('error while opening portal', error)
+	}
 }
 
 export const closePortalInstance = async (portal: Portal) => {
-    const name = `portal-${portal.id}`
+	const client = createClient(),
+		name = `portal-${portal.id}`
+	if (!client) throw new Error('The DigitalOcean driver configuration is incorrect. This may be due to improper ENV variables, please check')
 
-    try {
-        digitalOcean.Droplet.delete(portal.serverId).subscribe(
-            () => console.log("DeleteDropletComplete")
-        )
+	try {
+		const droplets = await client.droplet.listDroplets({ tag_name: name }),
+			droplet = droplets.data.droplets.find(_droplet => _droplet.name === name)
 
-        console.log(`closed portal with name ${name}`)
-    } catch(error) {
-        console.error('error while closing portal', error.response ? error.response.body : error)
-    }
+		if (droplet && droplet.id)
+			await client.droplet.deleteDroplet({ droplet_id: droplet.id })
+		else
+			throw new Error('portal doesn\'t exist')
+
+		console.log(`closed portal with name ${name}`)
+	} catch (error) {
+		console.error('error while closing portal', error.response ? error.response.body : error)
+	}
 }

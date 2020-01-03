@@ -1,14 +1,15 @@
 ![Cryb OSS](.github/portals-icon.png "@cryb/portals Logo")
 
-_**Portals** - VM microservice_
+_**Portals** — VM microservice_
 
-[![GitHub contributors](https://img.shields.io/github/contributors/crybapp/portals)](https://github.com/crybapp/portals/graphs/contributors) [![License](https://img.shields.io/github/license/crybapp/portals)](https://github.com/crybapp/portals/blob/master/LICENSE) [![PayPal Donate](https://img.shields.io/badge/donate-PayPal-blue.svg)](https://paypal.me/williamsthing)
+[![GitHub contributors](https://img.shields.io/github/contributors/crybapp/portals)](https://github.com/crybapp/portals/graphs/contributors) [![License](https://img.shields.io/github/license/crybapp/portals)](https://github.com/crybapp/portals/blob/master/LICENSE) [![Patreon Donate](https://img.shields.io/badge/donate-Patreon-red.svg)](https://patreon.com/cryb)
 
 ## Docs
 * [Info](#info)
     * [Status](#status)
 * [Codebase](#codebase)
     * [Folder Structure](#folder-structure)
+			* [Code Style](#code-style)
     * [First time setup](#first-time-setup)
         * [Installation](#installation)
     * [Running the app locally](#running-the-app-locally)
@@ -29,6 +30,13 @@ _**Portals** - VM microservice_
 The codebase for `@cryb/portals` is written in JavaScript, utilising TypeScript and Node.js. Express.js is used for our REST API, while the WebSocket API uses the `ws` module.
 
 MongoDB is used as the primary database, while Redis is used for cache and PUB/SUB.
+
+### Code Style
+We ask that you follow our [code style guidelines](https://github.com/crybapp/library/blob/master/code-style/STYLE.md) when contributing to this repository.
+
+We use TSLint in order to lint our code. Run `yarn lint` before committing any code to ensure it's clean.
+
+*Note: while we have most rules covered in our `tslint.json` config, it's good practice to familarise yourself with our code style guidelines*
 
 ### Folder Structure
 ```
@@ -57,9 +65,9 @@ The following services need to be installed for `@cryb/portals` to function:
 
 * MongoDB
 * Redis
-* `@cryb/api`
 
-We recommend that you run the following services alongside `@cryb/portals`, but it's not required.
+We recommend that you run the following services alongside `@cryb/portals`, but they're not required.
+* `@cryb/api`
 * `@cryb/web`
 * `@cryb/aperture`
 

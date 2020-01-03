@@ -1,7 +1,7 @@
-import { createApiClient } from 'dots-wrapper'
+import { Client } from 'hcloud-js'
 
 export const fetchCredentials = () => {
-	let credentials: any = process.env.DO_API_TOKEN
+	let credentials: any = process.env.HETZNER_API_KEY
 	if (!credentials) return null
 
 	return credentials
@@ -11,5 +11,5 @@ export const createClient = () => {
 	const credentials = fetchCredentials()
 	if (!credentials) return null
 
-	return createApiClient({ token: credentials })
+	return new Client(credentials)
 }

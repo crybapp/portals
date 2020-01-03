@@ -1,4 +1,5 @@
-require('dotenv').config()
+import dotenv from 'dotenv'
+dotenv.config()
 
 import { createServer } from 'http'
 
@@ -11,15 +12,15 @@ import { connect } from 'mongoose'
 import routes from './routes'
 import websocket from './websocket'
 
-import { verify_env } from '../utils/verifications.utils'
+import { verifyEnv } from '../utils/verifications.utils'
 
-verify_env('API_URL', 'API_KEY', 'PORTAL_KEY', 'MONGO_URI')
+verifyEnv('API_URL', 'API_KEY', 'PORTAL_KEY', 'MONGO_URI')
 
 const app = express()
 const server = createServer(app)
 const wss = new Server({ server })
 
-connect(process.env.MONGO_URI, { useNewUrlParser: true })
+connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
 
 app.use(json())
 app.use(morgan('dev'))

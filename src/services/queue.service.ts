@@ -2,9 +2,9 @@ import client from '../config/redis.config'
 
 import PortalRequest from '../models/request/defs'
 
-import { fetchCurrentDriver } from '../drivers/router'
-import { createPortal } from '../drivers/portal.driver'
 import { fetchAvailableNode } from '../drivers/kubernetes.driver'
+import { createPortal } from '../drivers/portal.driver'
+import { fetchCurrentDriver } from '../drivers/router'
 
 /**
  * This method is responsible for fetching the queue length.
@@ -16,14 +16,14 @@ const fetchQueueLength = () => client.llen('portal_queue')
  * handled.
  */
 const fetchNextQueueItem = () => new Promise<PortalRequest>(async (resolve, reject) => {
-    try {
-        const queueItem: PortalRequest = await client.lrange('portal_queue', 0, 1)[0]
-        if(!queueItem) return resolve()
+	try {
+		const queueItem: PortalRequest = await client.lrange('portal_queue', 0, 1)[0]
+		if (!queueItem) return resolve()
 
-        resolve(queueItem)
-    } catch(error) {
-        reject(error)
-    }
+		resolve(queueItem)
+	} catch (error) {
+		reject(error)
+	}
 })
 
 /**
@@ -37,15 +37,15 @@ const fetchNextQueueItem = () => new Promise<PortalRequest>(async (resolve, reje
  * in the queue, and then return the length of the queue.
  */
 const pullQueueItem = async (index: number = 0) => new Promise<number>(async (resolve, reject) => {
-    try {
-        const value = await client.lindex('portal_queue', index)
-        if(!value) return resolve(await fetchQueueLength())
+	try {
+		const value = await client.lindex('portal_queue', index)
+		if (!value) return resolve(await fetchQueueLength())
 
-        const length = await client.lrem('portal_queue', index, value)
-        resolve(length)
-    } catch(error) {
-        reject(error)
-    }
+		const length = await client.lrem('portal_queue', index, value)
+		resolve(length)
+	} catch (error) {
+		reject(error)
+	}
 })
 
 /**
@@ -56,19 +56,19 @@ const pullQueueItem = async (index: number = 0) => new Promise<number>(async (re
  * the queue item and them call the method responsible for handling that queue item.
  */
 export const checkNextQueueItem = async () => {
-    /**
-     * If there are no available nodes, don't resume with creating a new queue item
-     * This only applies if we're using the Kubernetes driver
-     *
-     * TODO: Move this to Kubernetes driver
-     */
-    const driver = await fetchCurrentDriver()
-    if(driver == 'kubernetes' && !await fetchAvailableNode()) return
+	/**
+	 * If there are no available nodes, don't resume with creating a new queue item
+	 * This only applies if we're using the Kubernetes driver
+	 *
+	 * TODO: Move this to Kubernetes driver
+	 */
+	const driver = await fetchCurrentDriver()
+	if (driver === 'kubernetes' && !await fetchAvailableNode()) return
 
-    const queueLength = await fetchQueueLength()
-    if(queueLength === 0) return
+	const queueLength = await fetchQueueLength()
+	if (queueLength === 0) return
 
-    handleQueueItem(await fetchNextQueueItem(), true)
+	handleQueueItem(await fetchNextQueueItem(), true)
 }
 
 /**
@@ -77,10 +77,10 @@ export const checkNextQueueItem = async () => {
  * and then calling the method that checks the next queue item
  */
 const handleQueueItem = async (request: PortalRequest, didPullFromQueue: boolean) => {
-    if(didPullFromQueue) await pullQueueItem()
-    await createPortal(request)
+	if (didPullFromQueue) await pullQueueItem()
+	await createPortal(request)
 
-    checkNextQueueItem()
+	checkNextQueueItem()
 }
 
 /**
@@ -91,10 +91,10 @@ const handleQueueItem = async (request: PortalRequest, didPullFromQueue: boolean
  * will deal with the request immediately.
  */
 export const pushQueue = async (request: PortalRequest) => {
-    const queueLength = await fetchQueueLength()
+	const queueLength = await fetchQueueLength()
 
-    if(queueLength === 0)
-        handleQueueItem(request, false)
-    else
-        client.lpush('portal_queue', JSON.stringify(request))
+	if (queueLength === 0)
+		handleQueueItem(request, false)
+	else
+		client.lpush('portal_queue', JSON.stringify(request))
 }

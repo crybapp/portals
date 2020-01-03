@@ -6,37 +6,37 @@ import Portal from '../../models/portal'
 import WSEvent, { ClientType } from './defs'
 
 const ACCEPTABLE_CLIENT_TYPES: ClientType[] = ['portal'],
-        isClientWithIdAndType = (id: string, type: ClientType) => (client: WebSocket) => client['id'] === id && client['type'] === type
+	isClientWithIdAndType = (id: string, type: ClientType) => (client: WebSocket) => client['id'] === id && client['type'] === type
 
 /**
  * Message incoming from Portal over WS
  */
 const handleMessage = async (message: WSEvent, socket: WebSocket) => {
-    const { op, d, t } = message,
-            clientId = socket['id'],
-            clientType = socket['type']
-            
-    console.log(`recieved message from ${clientType} (${clientId || 'unknown'}) over ws`, op, t)
+	const { op, d, t } = message,
+		clientId = socket['id'],
+		clientType = socket['type']
 
-    if(op === 2) {
-        try {
-            const { token, type } = d, { id } = verify(token, process.env.PORTAL_KEY) as { id: string }
-            if(ACCEPTABLE_CLIENT_TYPES.indexOf(type) === -1) return socket.close(1013)
+	console.log(`recieved message from ${clientType} (${clientId || 'unknown'}) over ws`, op, t)
 
-            socket['id'] = id
-            socket['type'] = type
+	if (op === 2) {
+		try {
+			const { token, type } = d, { id } = verify(token, process.env.PORTAL_KEY) as { id: string }
+			if (ACCEPTABLE_CLIENT_TYPES.indexOf(type) === -1) return socket.close(1013)
 
-            if(type === 'portal') {
-                const portal = await new Portal().load(id)
-                await portal.updateStatus('open')
-            }
+			socket['id'] = id
+			socket['type'] = type
 
-            console.log('recieved auth from', type, id)
-        } catch(error) {
-            socket.close(1013)
-            console.error('authentication error', error)
-        }
-    }
+			if (type === 'portal') {
+				const portal = await new Portal().load(id)
+				await portal.updateStatus('open')
+			}
+
+			console.log('recieved auth from', type, id)
+		} catch (error) {
+			socket.close(1013)
+			console.error('authentication error', error)
+		}
+	}
 }
 export default handleMessage
 
@@ -44,11 +44,11 @@ export default handleMessage
  * Message incoming from API or Portals for Portal
  */
 export const routeMessage = async (message: WSEvent, clients: WebSocket[]) => {
-    const { op, d, t } = message, { t: targetId } = d
-    console.log('recieved internal portal message to be routed to portal with id', targetId, JSON.stringify(message))
+	const { op, d, t } = message, { t: targetId } = d
+	console.log('recieved internal portal message to be routed to portal with id', targetId, JSON.stringify(message))
 
-    const target = clients.find(isClientWithIdAndType(targetId, 'portal'))
-    if(!target) return console.log('target not found for internal message to portal; aborting')
+	const target = clients.find(isClientWithIdAndType(targetId, 'portal'))
+	if (!target) return console.log('target not found for internal message to portal; aborting')
 
-    target.send(JSON.stringify({ op, d: { ...d, t: undefined }, t }))
+	target.send(JSON.stringify({ op, d: { ...d, t: undefined }, t }))
 }

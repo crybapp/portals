@@ -9,47 +9,49 @@ import handleMessage, { routeMessage } from './handlers'
 const sub = createPubSubClient()
 
 export default (wss: Server) => {
-    sub.on('message', (channel, data) => {
-        console.log('recieved message on channel', channel, 'data', data)
-        
-        let json: WSEvent,
-                clients = Array.from(wss.clients)
+	sub.on('message', (channel, data) => {
+		console.log('recieved message on channel', channel, 'data', data)
 
-        try {
-            json = JSON.parse(data.toString())
-        } catch(error) {
-            return console.error(error)
-        }
+		let json: WSEvent,
+			clients = Array.from(wss.clients)
 
-        routeMessage(json, clients)
-    }).subscribe('portals')
+		try {
+			json = JSON.parse(data.toString())
+		} catch (error) {
+			return console.error(error)
+		}
 
-    wss.on('connection', socket => {
-        console.log('socket open')
+		routeMessage(json, clients)
+	}).subscribe('portals')
 
-        socket.on('message', data => {
-            let json: WSEvent
+	wss.on('connection', socket => {
+		console.log('socket open')
 
-            try {
-                json = JSON.parse(data.toString())
-            } catch(error) {
-                return console.error(error)
-            }
+		socket.on('message', data => {
+			let json: WSEvent
 
-            handleMessage(json, socket)
-        })
+			try {
+				json = JSON.parse(data.toString())
+			} catch (error) {
+				return console.error(error)
+			}
 
-        socket.on('close', async () => {
+			handleMessage(json, socket)
+		})
 
-            const id = socket['id'], type = socket['type']
-            if(!id) return console.log('unknown socket closed')
+		socket.on('close', async () => {
 
-            console.log('socket closed', id, type)
+			const id = socket['id'], type = socket['type']
+			if (!id) return console.log('unknown socket closed')
 
-            if(type === 'portal') {
-                const portal = await new Portal().load(id)
-                portal.updateStatus('closed')
-            }
-        })
-    })
+			console.log('socket closed', id, type)
+
+			if (type === 'portal') {
+				try {
+					const portal = await new Portal().load(id)
+					portal.updateStatus('closed')
+				} catch (error) { } // Fails when it was deleted, so can be ignored
+			}
+		})
+	})
 }
