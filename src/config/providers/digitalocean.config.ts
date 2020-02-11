@@ -1,7 +1,7 @@
 import { createApiClient } from 'dots-wrapper'
 
 export const fetchCredentials = () => {
-	let credentials: any = process.env.DO_API_TOKEN
+	const credentials: any = process.env.DO_API_TOKEN
 	if (!credentials) return null
 
 	return credentials

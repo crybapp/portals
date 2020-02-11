@@ -30,7 +30,7 @@
 		"mongoose": "^5.7.5",
 		"morgan": "^1.9.1",
 		"tsc-watch": "^4.0.0",
-		"typescript": "^3.5.3"
+		"typescript": "^3.7.2"
 	},
 	"devDependencies": {
 		"@types/dotenv": "^6.1.1",

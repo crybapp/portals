@@ -2,8 +2,8 @@ import { Server } from 'ws'
 
 import Portal from '../../models/portal'
 
-import WSEvent from './defs'
 import { createPubSubClient } from '../../config/redis.config'
+import WSEvent from './defs'
 import handleMessage, { routeMessage } from './handlers'
 
 const sub = createPubSubClient()
@@ -12,8 +12,8 @@ export default (wss: Server) => {
 	sub.on('message', (channel, data) => {
 		console.log('recieved message on channel', channel, 'data', data)
 
-		let json: WSEvent,
-			clients = Array.from(wss.clients)
+		let json: WSEvent
+		const clients = Array.from(wss.clients)
 
 		try {
 			json = JSON.parse(data.toString())

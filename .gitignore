@@ -9,6 +9,9 @@ lerna-debug.log*
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
+#vscode options
+.vscode/
+
 # Runtime data
 pids
 *.pid
@@ -116,3 +119,10 @@ Temporary Items
 
 # Compiled JS
 dist
+
+#In Use Packages
+package-lock.json
+yarn.lock
+
+#Editor Configs
+.vscode

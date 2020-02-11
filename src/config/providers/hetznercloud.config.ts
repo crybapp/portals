@@ -1,7 +1,7 @@
 import { Client } from 'hcloud-js'
 
 export const fetchCredentials = () => {
-	let credentials: any = process.env.HETZNER_API_KEY
+	const credentials: any = process.env.HETZNER_API_KEY
 	if (!credentials) return null
 
 	return credentials
