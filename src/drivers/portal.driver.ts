@@ -9,7 +9,7 @@ import { closePortalInstance, openPortalInstance } from './router'
 export const createPortal = (request: PortalRequest) => new Promise<Portal>(async (resolve, reject) => {
 		try {
 			const portal = await new Portal().create(request)
-			if(process.env.JANUS_ENABLE === 'true') {
+			if(process.env.ENABLE_JANUS === 'true') {
 				const mountpoint = await new Mountpoint().create(portal)
 				createJanusStreamingMountpoint(mountpoint)
 			}
@@ -27,7 +27,7 @@ export const closePortal = (portalId: string) => new Promise(async (resolve, rej
 		const portal = await new Portal().load(portalId)
 		await portal.destroy()
 		
-		if(process.env.JANUS_ENABLE === 'true') {
+		if(process.env.ENABLE_JANUS === 'true') {
 			const mountpoint = await new Mountpoint().load('Portal', portalId)
 			destroyJanusStramingMountpoint(mountpoint)
 			await mountpoint.destroy()
