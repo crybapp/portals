@@ -35,7 +35,7 @@ const handleMessage = async (message: WSEvent, socket: WebSocket) => {
 						if (type === 'portal') {
 								const portal = await new Portal().load(id)
 
-								if (process.env.JANUS_ENABLE === 'true') {
+								if (process.env.ENABLE_JANUS === 'true') {
 										const mountpoint = await new Mountpoint().load('Portal', id)
 
 										if (mountpoint.audioport === 0 || mountpoint.videoport === 0) {
