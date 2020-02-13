@@ -33,6 +33,6 @@ const parseSentinels = (sentinels: string) =>
 		}
 	}
 
-export const createPubSubClient = () => new Redis(getOptions())
+export const createRedisClient = () => new Redis(getOptions())
 
 export default new Redis(getOptions())

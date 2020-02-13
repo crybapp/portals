@@ -9,7 +9,7 @@ import { pushQueue } from '../services/queue.service'
 const app = express()
 
 app.post('/create', authenticate, (req, res) => {
-	const { roomId } = req.body, request: PortalRequest = { roomId, recievedAt: Date.now() }
+	const { roomId } = req.body, request: PortalRequest = { roomId, receivedAt: Date.now() }
 	pushQueue(request)
 
 	res.send(request)

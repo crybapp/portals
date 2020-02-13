@@ -2,11 +2,11 @@ import { Server } from 'ws'
 
 import Portal from '../../models/portal'
 
-import { createPubSubClient } from '../../config/redis.config'
+import { createRedisClient } from '../../config/redis.config'
 import WSEvent from './defs'
 import handleMessage, { routeMessage } from './handlers'
 
-const sub = createPubSubClient()
+const sub = createRedisClient()
 
 export default (wss: Server) => {
 	sub.on('message', (channel, data) => {
