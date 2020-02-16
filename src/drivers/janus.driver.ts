@@ -5,17 +5,14 @@
 import axios, { AxiosResponse } from 'axios'
 import Mountpoint from '../models/mountpoint'
 
-const JANUS_SESSION_MISSING = 458
-const JANUS_HANDLE_MISSING = 459
-
 const JANUS_HOSTNAME = process.env.JANUS_HOSTNAME
 const JANUS_PORT = process.env.JANUS_PORT
 const JANUS_ADMIN_KEY = process.env.JANUS_STREAMING_ADMIN_KEY
 
 const createSessionRequestBody = (transactionId, options) => {
 	return {
-			janus: 'create',
-			transaction: transactionId
+		janus: 'create',
+		transaction: transactionId
 	}
 }
 

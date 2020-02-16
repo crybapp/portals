@@ -3,7 +3,7 @@ import Portal from '../models/portal'
 import { createClient, fetchCredentials } from '../config/providers/gcloud.config'
 import { IPortalDriver } from './IPortalDriver'
 
-export class GCloudDriver implements IPortalDriver {
+export default class GCloudDriver implements IPortalDriver {
 	public driverName = 'gcloud'
 	private projectId = fetchCredentials() || null
 	private zoneId = process.env.GOOGLE_ZONE_ID || 'us-east1-b'

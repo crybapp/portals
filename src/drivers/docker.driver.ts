@@ -3,7 +3,7 @@ import Portal from '../models/portal'
 import { createClient } from '../config/providers/docker.config'
 import { IPortalDriver } from './IPortalDriver'
 
-export class DockerDriver implements IPortalDriver {
+export default class DockerDriver implements IPortalDriver {
 	public driverName = 'docker'
 
 	public createPortal = (portal: Portal) => new Promise(async (resolve, reject) => {

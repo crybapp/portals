@@ -1,12 +1,12 @@
 import { PortalManager } from './portalManager.service'
 import { QueueService } from './portalQueue.service'
 
-import { DigitalOceanDriver } from '../drivers/digitalocean.driver'
-import { DockerDriver } from '../drivers/docker.driver'
-import { GCloudDriver } from '../drivers/gcloud.driver'
-import { HetznerCloudDriver } from '../drivers/hetznercloud.driver'
-import { KubernetesDriver } from '../drivers/kubernetes.driver'
-import { ManualDriver } from '../drivers/manual.driver'
+import DigitalOceanDriver from '../drivers/digitalocean.driver'
+import DockerDriver from '../drivers/docker.driver'
+import GCloudDriver from '../drivers/gcloud.driver'
+import HetznerCloudDriver from '../drivers/hetznercloud.driver'
+import KubernetesDriver from '../drivers/kubernetes.driver'
+import ManualDriver from '../drivers/manual.driver'
 
 const portalManager = new PortalManager()
 

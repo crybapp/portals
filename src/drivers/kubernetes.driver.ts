@@ -9,7 +9,7 @@ type Nodemap = {
 	[key in string]: number
 }
 
-export class KubernetesDriver implements IPortalDriver {
+export default class KubernetesDriver implements IPortalDriver {
 	public driverName = 'kubernetes'
 
 	public fetchAvailableNode = (client?: CoreV1Api) => new Promise<V1Node>(async (resolve, reject) => {

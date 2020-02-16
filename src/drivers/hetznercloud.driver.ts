@@ -3,7 +3,7 @@ import Portal from '../models/portal'
 import { createClient } from '../config/providers/hetznercloud.config'
 import { IPortalDriver } from './IPortalDriver'
 
-export class HetznerCloudDriver implements IPortalDriver {
+export default class HetznerCloudDriver implements IPortalDriver {
 	public driverName = 'hetznercloud'
 	private zoneId = process.env.HETZNER_ZONE_ID || 'nbg1'
 	private serverType = process.env.HETZNER_SERVER_TYPE || 'cx11'

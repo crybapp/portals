@@ -1,7 +1,7 @@
 import Portal from '../models/portal'
 import { IPortalDriver } from './IPortalDriver'
 
-export class ManualDriver implements IPortalDriver {
+export default class ManualDriver implements IPortalDriver {
 	public driverName = 'manual'
 
 	private manualLogHeaders = [

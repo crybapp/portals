@@ -3,7 +3,7 @@ import Portal from '../models/portal'
 import { createClient } from '../config/providers/digitalocean.config'
 import { IPortalDriver } from './IPortalDriver'
 
-export class DigitalOceanDriver implements IPortalDriver {
+export default class DigitalOceanDriver implements IPortalDriver {
 	public driverName = 'digitalocean'
 
 	public createPortal = (portal: Portal) => new Promise(async (resolve, reject) => {
