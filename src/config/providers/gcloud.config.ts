@@ -18,8 +18,7 @@ export const createClient = () => {
 	if (!credentials) return null
 
 	const scopes = 'https://www.googleapis.com/auth/cloud-platform',
-		auth = new GoogleAuth({ scopes }),
-		client = auth.fromJSON(credentials as JWTInput)
+		auth = new GoogleAuth({ scopes })
 
-	return client
+	return auth.fromJSON(credentials as JWTInput)
 }

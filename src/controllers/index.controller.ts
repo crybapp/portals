@@ -1,15 +1,13 @@
 import express from 'express'
 
-import PortalRequest from '../models/request/defs'
-
-import Services from '../services/ServiceManager.service'
 import authenticate from '../server/middleware/authenticate.middleware'
+import Services from '../services/serviceManager.service'
 
 const app = express()
 
 app.post('/create', authenticate, async (req, res) => {
-	const { roomId } = req.body
-	const positionInQueue = await Services.queueService.queueNewPortalRequest(roomId)
+	const { roomId } = req.body,
+		positionInQueue = await Services.queueService.queueNewPortalRequest(roomId)
 
 	res.send(positionInQueue)
 })

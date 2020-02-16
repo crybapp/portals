@@ -10,54 +10,37 @@ type Nodemap = {
 }
 
 export class KubernetesDriver implements IPortalDriver {
-	public driverName = "kubernetes"
+	public driverName = 'kubernetes'
 
-	private getNodemap = (nodes: V1Node[]) => {
-		const map: Nodemap = {}
-	
-		nodes.forEach(node =>
-			map[node.metadata.name] ? map[node.metadata.name] += 1 : map[node.metadata.name] = 1
-		)
-
-		nodes.forEach(({ metadata: { name } }) => {
-			if (map[name] >= parseInt(process.env.PORTAL_NODE_LIMIT))
-				delete map[name]
-		})
-	
-		return map
-	}
-	
-	public isSpaceAvailable = async () => !!(await this.fetchAvailableNode())
-	
 	public fetchAvailableNode = (client?: CoreV1Api) => new Promise<V1Node>(async (resolve, reject) => {
 		if (!client) client = createClient()
 		if (!client) throw new Error('The Kubernetes driver configuration is incorrect. This may be due to improper ENV variables, please check')
-	
+
 		try {
 			const { body: nodes } = await client.listNode()
-	
+
 			const nodeMap = this.getNodemap(nodes.items)
 			if (Object.keys(nodeMap).length === 0)
 				resolve(null)
-	
+
 			const recommendedNodeName = Object.keys(nodeMap).reduce((a, b) =>
 				nodeMap[a] < nodeMap[b] ? a : b
 			), recommendedNode = nodes.items.find(node =>
 				node.metadata.name === recommendedNodeName
 			)
-	
+
 			resolve(recommendedNode)
 		} catch (error) {
 			reject(error)
 		}
 	})
-	
+
 	public createPortal = (portal: Portal) => new Promise(async (resolve, reject) => {
 		const client = createClient()
 		if (!client) throw new Error('The Kubernetes driver configuration is incorrect. This may be due to improper ENV variables, please check')
-	
+
 		const name = `portal-${portal.id}`
-	
+
 		try {
 			const _pod = {
 				apiVersion: 'v1',
@@ -106,7 +89,7 @@ export class KubernetesDriver implements IPortalDriver {
 					imagePullSecrets: [{ name: process.env.K8S_PORTAL_IMAGE_PULL_SECRET }]
 				}
 			} as V1Pod, { body: pod } = await client.createNamespacedPod('portals', _pod)
-	
+
 			console.log(`opened portal with name ${pod.metadata.name} in namespace ${pod.metadata.namespace}`)
 			resolve()
 		} catch (error) {
@@ -114,20 +97,36 @@ export class KubernetesDriver implements IPortalDriver {
 			console.error('error while opening portal', error.response ? error.response.body : error)
 		}
 	})
-	
+
 	public destroyPortal = async (portal: Portal) => {
 		const client = createClient()
 		if (!client) throw new Error('The Kubernetes driver is incorrect. This may be due to improper ENV variables, please try again')
-	
+
 		const podName = `portal-${portal.id}`
-	
+
 		try {
 			const { body: status } = await client.deleteNamespacedPod(podName, 'portals')
-	
+
 			console.log(`closed portal with name ${podName}`)
 		} catch (error) {
 			console.error('error while closing portal', error.response ? error.response.body : error)
 		}
 	}
-	
+
+	public isSpaceAvailable = async () => !!(await this.fetchAvailableNode())
+
+	private getNodemap = (nodes: V1Node[]) => {
+		const map: Nodemap = {}
+
+		nodes.forEach(node =>
+			map[node.metadata.name] ? map[node.metadata.name] += 1 : map[node.metadata.name] = 1
+		)
+
+		nodes.forEach(({ metadata: { name } }) => {
+			if (map[name] >= parseInt(process.env.PORTAL_NODE_LIMIT))
+				delete map[name]
+		})
+
+		return map
+	}
 }

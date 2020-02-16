@@ -4,8 +4,8 @@ import { createClient } from '../config/providers/docker.config'
 import { IPortalDriver } from './IPortalDriver'
 
 export class DockerDriver implements IPortalDriver {
-	public driverName = "docker"
-	
+	public driverName = 'docker'
+
 	public createPortal = (portal: Portal) => new Promise(async (resolve, reject) => {
 		const client = createClient(),
 			name = `portal-${portal.id}`
@@ -51,7 +51,7 @@ export class DockerDriver implements IPortalDriver {
 		}
 	}
 
-	public isSpaceAvailable = () => new Promise<Boolean>((resolve) => {
+	public isSpaceAvailable = () => new Promise<boolean>(resolve => {
 		resolve(true)
 	})
 }

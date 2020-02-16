@@ -1,5 +1,5 @@
-import { QueueService } from "./PortalQueue.service"
-import { PortalManager } from "./PortalManager.service"
+import { PortalManager } from './portalManager.service'
+import { QueueService } from './portalQueue.service'
 
 import { DigitalOceanDriver } from '../drivers/digitalocean.driver'
 import { DockerDriver } from '../drivers/docker.driver'
@@ -21,6 +21,6 @@ const queueService = new QueueService(portalManager.createPortal, portalManager.
 queueService.start()
 
 export default {
-    portalManager,
-    queueService
+	portalManager,
+	queueService
 }

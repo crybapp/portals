@@ -3,9 +3,9 @@ import WebSocket from 'ws'
 
 import Portal from '../../models/portal'
 
-import Services from '../../services/ServiceManager.service'
 import Mountpoint from '../../models/mountpoint'
-import WSEvent, { ClientType } from './defs'
+import Services from '../../services/serviceManager.service'
+import IWSEvent, { ClientType } from './defs'
 
 const ACCEPTABLE_CLIENT_TYPES: ClientType[] = ['portal'],
 	isClientWithIdAndType = (id: string, type: ClientType) => (client: WebSocket) =>
@@ -14,14 +14,14 @@ const ACCEPTABLE_CLIENT_TYPES: ClientType[] = ['portal'],
 /**
  * Message incoming from Portal over WS
  */
-const handleMessage = async (message: WSEvent, socket: WebSocket) => {
+const handleMessage = async (message: IWSEvent, socket: WebSocket) => {
 	const { op, d, t } = message,
 			clientId = socket['id'],
 			clientType = socket['type']
 
 	console.log(`recieved message from ${clientType} (${clientId || 'unknown'}) over ws`, op, t)
 
-	if (op === 2) {
+	if (op === 2)
 		try {
 			console.log('Verifying Token')
 			const { token, type } = d, { id } = verify(token, process.env.PORTAL_KEY) as { id: string }
@@ -53,7 +53,7 @@ const handleMessage = async (message: WSEvent, socket: WebSocket) => {
 							}
 						}
 					))
-				} else {
+				} else
 					socket.send(JSON.stringify(
 						{
 							op: 20,
@@ -63,7 +63,6 @@ const handleMessage = async (message: WSEvent, socket: WebSocket) => {
 							}
 						}
 					))
-				}
 
 				await portal.updateStatus('open')
 			}
@@ -73,14 +72,13 @@ const handleMessage = async (message: WSEvent, socket: WebSocket) => {
 			socket.close(1013)
 			console.error('authentication error', error)
 		}
-	}
 }
 export default handleMessage
 
 /**
  * Message incoming from API or Portals for Portal
  */
-export const routeMessage = async (message: WSEvent, clients: WebSocket[]) => {
+export const routeMessage = async (message: IWSEvent, clients: WebSocket[]) => {
 	const { op, d, t } = message, { t: targetId } = d
 	console.log('recieved internal portal message to be routed to portal with id', targetId, JSON.stringify(message))
 

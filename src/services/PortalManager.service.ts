@@ -1,9 +1,9 @@
+import Mountpoint from '../models/mountpoint'
 import Portal from '../models/portal'
 import PortalRequest from '../models/request/defs'
 
-import Mountpoint from '../models/mountpoint'
-import { createJanusStreamingMountpoint, destroyJanusStramingMountpoint } from '../drivers/janus.driver'
 import { IPortalDriver } from '../drivers/IPortalDriver'
+import { createJanusStreamingMountpoint, destroyJanusStramingMountpoint } from '../drivers/janus.driver'
 
 export class PortalManager {
 	private driverMap = new Map<string, IPortalDriver>()
@@ -13,30 +13,24 @@ export class PortalManager {
 		this.driverMap.set(driver.driverName, driver)
 	}
 
-	private getDriverFromEnv = ():IPortalDriver => {
-		return this.driverMap.get(process.env.DRIVER.toLowerCase())
-	}
-
 	public getCurrentAvailabilityFn = () => {
-		if(!this.selectedDriver) {
+		if (!this.selectedDriver)
 			this.selectedDriver = this.getDriverFromEnv()
-		}
-		
+
 		return this.selectedDriver.isSpaceAvailable
 	}
 
 	public createPortal = (request: PortalRequest) => new Promise<Portal>(async (resolve, reject) => {
-		if(!this.selectedDriver) {
+		if (!this.selectedDriver)
 			this.selectedDriver = this.getDriverFromEnv()
-		}
 
 		try {
 			const portal = await new Portal().create(request)
-			if(process.env.ENABLE_JANUS === 'true') {
+			if (process.env.ENABLE_JANUS === 'true') {
 				const mountpoint = await new Mountpoint().create(portal)
 				createJanusStreamingMountpoint(mountpoint)
 			}
-		
+
 			this.selectedDriver.createPortal(portal)
 				.catch(() => this.closePortal(portal.id))
 
@@ -47,15 +41,14 @@ export class PortalManager {
 	})
 
 	public closePortal = (portalId: string) => new Promise(async (resolve, reject) => {
-		if(!this.selectedDriver) {
+		if (!this.selectedDriver)
 			this.selectedDriver = this.getDriverFromEnv()
-		}
 
 		try {
 			const portal = await new Portal().load(portalId)
 			await portal.destroy()
-			
-			if(process.env.ENABLE_JANUS === 'true') {
+
+			if (process.env.ENABLE_JANUS === 'true') {
 				const mountpoint = await new Mountpoint().load('Portal', portalId)
 				destroyJanusStramingMountpoint(mountpoint)
 				await mountpoint.destroy()
@@ -69,4 +62,8 @@ export class PortalManager {
 			reject(error)
 		}
 	})
+
+	private getDriverFromEnv = (): IPortalDriver => {
+		return this.driverMap.get(process.env.DRIVER.toLowerCase())
+	}
 }

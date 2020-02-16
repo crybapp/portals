@@ -1,9 +1,8 @@
 import Portal from '../models/portal'
-import { IPortalDriver } from "./IPortalDriver"
-
+import { IPortalDriver } from './IPortalDriver'
 
 export class ManualDriver implements IPortalDriver {
-	public driverName = "manual" 
+	public driverName = 'manual'
 
 	private manualLogHeaders = [
 		'--- IMPORTANT ---',
@@ -12,10 +11,6 @@ export class ManualDriver implements IPortalDriver {
 	private manualLogFooters = [
 		'------'
 	]
-
-	public isSpaceAvailable = () => new Promise<Boolean>((resolve) => {
-		resolve(true)
-	})
 
 	public createPortal = (portal: Portal) => new Promise(async (resolve, reject) => {
 		const name = `portal-${portal.id}`
@@ -54,4 +49,8 @@ export class ManualDriver implements IPortalDriver {
 			console.error('error while closing portal', error.response ? error.response.body : error)
 		}
 	}
+
+	public isSpaceAvailable = () => new Promise<boolean>(resolve => {
+		resolve(true)
+	})
 }

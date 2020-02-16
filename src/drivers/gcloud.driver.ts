@@ -4,7 +4,7 @@ import { createClient, fetchCredentials } from '../config/providers/gcloud.confi
 import { IPortalDriver } from './IPortalDriver'
 
 export class GCloudDriver implements IPortalDriver {
-	public driverName = "gcloud"
+	public driverName = 'gcloud'
 	private projectId = fetchCredentials() || null
 	private zoneId = process.env.GOOGLE_ZONE_ID || 'us-east1-b'
 	private baseUrl = `https://www.googleapis.com/compute/v1/projects/${this.projectId}/zones/${this.zoneId}/`
@@ -55,7 +55,7 @@ export class GCloudDriver implements IPortalDriver {
 		}
 	}
 
-	public isSpaceAvailable = () => new Promise<Boolean>((resolve) => {
+	public isSpaceAvailable = () => new Promise<boolean>(resolve => {
 		resolve(true)
 	})
 }

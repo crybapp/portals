@@ -1,8 +1,8 @@
-import Portal from "../models/portal";
+import Portal from '../models/portal'
 
 export interface IPortalDriver {
-    driverName: string
-    isSpaceAvailable(): Promise<Boolean>
-    createPortal(portalToCreate: Portal): Promise<unknown>
-    destroyPortal(portalToDestroy: Portal)
+	driverName: string
+	isSpaceAvailable(): Promise<boolean>
+	createPortal(portalToCreate: Portal): Promise<unknown>
+	destroyPortal(portalToDestroy: Portal)
 }

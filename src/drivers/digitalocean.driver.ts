@@ -4,7 +4,7 @@ import { createClient } from '../config/providers/digitalocean.config'
 import { IPortalDriver } from './IPortalDriver'
 
 export class DigitalOceanDriver implements IPortalDriver {
-	public driverName = "digitalocean"
+	public driverName = 'digitalocean'
 
 	public createPortal = (portal: Portal) => new Promise(async (resolve, reject) => {
 		const client = createClient(),
@@ -52,7 +52,7 @@ export class DigitalOceanDriver implements IPortalDriver {
 		}
 	}
 
-	public isSpaceAvailable = () => new Promise<Boolean>((resolve) => {
+	public isSpaceAvailable = () => new Promise<boolean>(resolve => {
 		resolve(true)
 	})
 }

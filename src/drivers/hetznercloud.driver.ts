@@ -1,11 +1,10 @@
 import Portal from '../models/portal'
 
-import { createClient, fetchCredentials } from '../config/providers/hetznercloud.config'
-import { IPortalDriver } from './IPortalDriver' 
+import { createClient } from '../config/providers/hetznercloud.config'
+import { IPortalDriver } from './IPortalDriver'
 
 export class HetznerCloudDriver implements IPortalDriver {
-	public driverName = "hetznercloud"
-	private project_id = fetchCredentials()
+	public driverName = 'hetznercloud'
 	private zoneId = process.env.HETZNER_ZONE_ID || 'nbg1'
 	private serverType = process.env.HETZNER_SERVER_TYPE || 'cx11'
 
@@ -53,7 +52,7 @@ export class HetznerCloudDriver implements IPortalDriver {
 		}
 	}
 
-	public isSpaceAvailable = () => new Promise<Boolean>((resolve) => {
+	public isSpaceAvailable = () => new Promise<boolean>(resolve => {
 		resolve(true)
-	}) 
+	})
 }
