@@ -9,7 +9,8 @@ export default class DockerDriver implements IPortalDriver {
 	public createPortal = (portal: Portal) => new Promise(async (resolve, reject) => {
 		const client = createClient(),
 			name = `portal-${portal.id}`
-		if (!client) throw new Error('The Docker driver configuration is incorrect. This may be due to improper ENV variables, please check')
+		if (!client)
+			throw new Error('The Docker driver configuration is incorrect. This may be due to improper ENV variables, please check')
 
 		try {
 			const container = await client.createContainer({

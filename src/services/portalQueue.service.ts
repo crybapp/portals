@@ -61,7 +61,7 @@ export class QueueService  {
 	 * getNextPortalRequest will return the next Portal request in the queue
 	 * if there are no items in the queue, getNextPortalRequest will wait till there are.
 	 */
-	private getNextPortalRequest = () => new Promise<PortalRequest>(async (resolve, reject) => {
+	private getNextPortalRequest = () => new Promise<PortalRequest>(async resolve => {
 		const redisResponse = await this.blockingClient.send_command('BLPOP', this.queueChannel, 0)
 		const queuedRequest: PortalRequest = JSON.parse(redisResponse[1])
 		resolve(queuedRequest)

@@ -11,7 +11,8 @@ export default class GCloudDriver implements IPortalDriver {
 
 	public createPortal = (portal: Portal) => new Promise(async (resolve, reject) => {
 		const client = createClient()
-		if (!client) throw new Error('The Google Cloud driver configuration is incorrect. This may be due to improper ENV variables, please check')
+		if (!client)
+			throw new Error('The Google Cloud driver configuration is incorrect. This may be due to improper ENV variables, please check')
 
 		const portalName = `portal-${portal.id}`
 

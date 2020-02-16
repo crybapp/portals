@@ -13,8 +13,10 @@ export default class KubernetesDriver implements IPortalDriver {
 	public driverName = 'kubernetes'
 
 	public fetchAvailableNode = (client?: CoreV1Api) => new Promise<V1Node>(async (resolve, reject) => {
-		if (!client) client = createClient()
-		if (!client) throw new Error('The Kubernetes driver configuration is incorrect. This may be due to improper ENV variables, please check')
+		if (!client)
+			client = createClient()
+		if (!client)
+			throw new Error('The Kubernetes driver configuration is incorrect. This may be due to improper ENV variables, please check')
 
 		try {
 			const { body: nodes } = await client.listNode()
