@@ -6,11 +6,11 @@ import PortalRequest from '../request/defs'
 import StoredPortal from '../../schemas/portal.schema'
 import IPortal from './defs'
 
-import { createPubSubClient } from '../../config/redis.config'
+import { createRedisClient } from '../../config/redis.config'
 import { generateFlake } from '../../utils/generate.utils'
 import Mountpoint from '../mountpoint'
 
-const pub = createPubSubClient()
+const pub = createRedisClient()
 
 export type PortalStatus = 'waiting' | 'requested' | 'in-queue' | 'creating' | 'starting' | 'open' | 'closed' | 'error'
 
@@ -40,7 +40,7 @@ export default class Portal {
 
 		public create = (request: PortalRequest) => new Promise<Portal>(async (resolve, reject) => {
 				try {
-						const { roomId, recievedAt } = request
+						const { roomId, receivedAt: recievedAt } = request
 
 						const json: IPortal = {
 								info: {
