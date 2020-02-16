@@ -7,7 +7,7 @@ import { generateFlake } from '../utils/generate.utils'
 
 
 type AvailabilityFunc = () => Promise<Boolean>
-type PortalCreationFunc = (PortalRequest) => Promise<unknown>
+type PortalCreationFunc = (PortalRequest: PortalRequest) => Promise<unknown>
 
 export class QueueService  {
     private queueChannel: string
@@ -46,11 +46,13 @@ export class QueueService  {
      * @param availabilityFn the function to be called to check if something exists
      */
     private waitForAvailability = async () => {
-        if(!this.availabilityFn || await this.availabilityFn())
-            return
+        let available = false
+        while(!available) {
+            if(!this.availabilityFn || await this.availabilityFn())
+                return
 
-        await setTimeout(() => true, 500)
-        this.waitForAvailability()
+            await setTimeout(() => true, 500)
+        }
     }
 
     /**
@@ -71,7 +73,7 @@ export class QueueService  {
             if(this.shouldClose)
                 return
 
-            const requestedPortal = this.getNextPortalRequest()
+            const requestedPortal = await this.getNextPortalRequest()
             this.portalCreateFn(requestedPortal)
         }
     }
