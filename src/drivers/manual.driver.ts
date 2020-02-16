@@ -1,48 +1,57 @@
 import Portal from '../models/portal'
+import { IPortalDriver } from "./IPortalDriver"
 
-import { closePortal } from './portal.driver'
 
-const manualLogHeaders = [
-	'--- IMPORTANT ---',
-	'You\'re using the manual driver, which is intended for development.',
-], manualLogFooters = [
-	'------'
-]
+export class ManualDriver implements IPortalDriver {
+	public driverName = "manual" 
 
-export const openPortalInstance = async (portal: Portal) => {
-	const name = `portal-${portal.id}`
+	private manualLogHeaders = [
+		'--- IMPORTANT ---',
+		'You\'re using the manual driver, which is intended for development.',
+	]
+	private manualLogFooters = [
+		'------'
+	]
 
-	try {
-		console.log([
-			...manualLogHeaders,
-			'When starting @cryb/portal, use one of the following commands:',
-			`yarn docker:dev --portalId ${portal.id}`,
-			'OR',
-			`npm run docker:dev --portalId ${portal.id}`,
-			...manualLogFooters
-		].join('\n'))
-		await portal.updateStatus('starting')
+	public isSpaceAvailable = () => new Promise<Boolean>((resolve) => {
+		resolve(true)
+	})
 
-		console.log(`opened portal with name ${name}`)
-	} catch (error) {
-		closePortal(portal.id)
+	public createPortal = (portal: Portal) => new Promise(async (resolve, reject) => {
+		const name = `portal-${portal.id}`
 
-		console.error('error while opening portal', error)
-	}
-}
+		try {
+			console.log([
+				...this.manualLogHeaders,
+				'When starting @cryb/portal, use one of the following commands:',
+				`yarn docker:dev --portalId ${portal.id}`,
+				'OR',
+				`npm run docker:dev --portalId ${portal.id}`,
+				...this.manualLogFooters
+			].join('\n'))
+			await portal.updateStatus('starting')
 
-export const closePortalInstance = async (portal: Portal) => {
-	const name = `portal-${portal.id}`
+			console.log(`opened portal with name ${name}`)
+			resolve()
+		} catch (error) {
+			reject(error)
+			console.error('error while opening portal', error)
+		}
+	})
 
-	try {
-		console.log([
-			...manualLogHeaders,
-			`The Docker container running @cryb/portal with the portal id of ${portal.id} should now be terminated.`,
-			...manualLogFooters
-		].join('\n'))
+	public destroyPortal = async (portal: Portal) => {
+		const name = `portal-${portal.id}`
 
-		console.log(`closed portal with name ${name}`)
-	} catch (error) {
-		console.error('error while closing portal', error.response ? error.response.body : error)
+		try {
+			console.log([
+				...this.manualLogHeaders,
+				`The Docker container running @cryb/portal with the portal id of ${portal.id} should now be terminated.`,
+				...this.manualLogFooters
+			].join('\n'))
+
+			console.log(`closed portal with name ${name}`)
+		} catch (error) {
+			console.error('error while closing portal', error.response ? error.response.body : error)
+		}
 	}
 }

@@ -7,13 +7,14 @@ import { generateFlake } from '../utils/generate.utils'
 
 
 type AvailabilityFunc = () => Promise<Boolean>
-type PortalCreationFunc = (PortalRequest) => Promise<IPortal>
+type PortalCreationFunc = (PortalRequest) => Promise<unknown>
 
 export class QueueService  {
     private queueChannel: string
     private blockingClient: Redis
     private availabilityFn: AvailabilityFunc
     private portalCreateFn: PortalCreationFunc
+    private shouldClose: Boolean = false
 
     constructor(
         portalCreateFn: PortalCreationFunc,
@@ -44,12 +45,12 @@ export class QueueService  {
      * Wait for availability will wait until availabilityFn returns true
      * @param availabilityFn the function to be called to check if something exists
      */
-    private waitForAvailability = async (availableFn?: AvailabilityFunc) => {
-        if(!availableFn || await availableFn())
+    private waitForAvailability = async () => {
+        if(!this.availabilityFn || await this.availabilityFn())
             return
 
         await setTimeout(() => true, 500)
-        this.waitForAvailability(availableFn)
+        this.waitForAvailability()
     }
 
     /**
@@ -64,13 +65,20 @@ export class QueueService  {
         return client.rpush(this.queueChannel, JSON.stringify(portalRequest))
     }
 
-    public startQueueService = async (available?: AvailabilityFunc) => {    
-        async () => {
-            if(!await available())
-            await setTimeout(() => true, 500)
+    public start = async () => {    
+        while(!this.shouldClose) {
+            await this.waitForAvailability()
+            if(this.shouldClose)
+                return
 
-            const portalRequest = await this.getNextPortalRequest()
-            await this.portalCreateFn(portalRequest)
+            const requestedPortal = this.getNextPortalRequest()
+            this.portalCreateFn(requestedPortal)
         }
+    }
+
+    public close = async () => {
+        this.availabilityFn = null
+        this.shouldClose = true
+        this.blockingClient.quit()
     }
 }

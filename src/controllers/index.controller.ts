@@ -2,22 +2,21 @@ import express from 'express'
 
 import PortalRequest from '../models/request/defs'
 
-import { closePortal } from '../drivers/portal.driver'
+import Services from '../services/ServiceManager.service'
 import authenticate from '../server/middleware/authenticate.middleware'
-import { pushQueue } from '../services/queue.service'
 
 const app = express()
 
-app.post('/create', authenticate, (req, res) => {
-	const { roomId } = req.body, request: PortalRequest = { roomId, receivedAt: Date.now() }
-	pushQueue(request)
+app.post('/create', authenticate, async (req, res) => {
+	const { roomId } = req.body
+	const positionInQueue = await Services.queueService.queueNewPortalRequest(roomId)
 
-	res.send(request)
+	res.send(positionInQueue)
 })
 
 app.delete('/:id', authenticate, (req, res) => {
 	const { id: portalId } = req.params
-	closePortal(portalId)
+	Services.portalManager.closePortal(portalId)
 
 	res.sendStatus(200)
 })

@@ -3,77 +3,77 @@ import WebSocket from 'ws'
 
 import Portal from '../../models/portal'
 
-import { closePortal } from '../../drivers/portal.driver'
+import Services from '../../services/ServiceManager.service'
 import Mountpoint from '../../models/mountpoint'
 import WSEvent, { ClientType } from './defs'
 
 const ACCEPTABLE_CLIENT_TYPES: ClientType[] = ['portal'],
 	isClientWithIdAndType = (id: string, type: ClientType) => (client: WebSocket) =>
-		client['id'] === id && client['type'] === type
+	client['id'] === id && client['type'] === type
 
 /**
  * Message incoming from Portal over WS
  */
 const handleMessage = async (message: WSEvent, socket: WebSocket) => {
-		const { op, d, t } = message,
-						clientId = socket['id'],
-						clientType = socket['type']
+	const { op, d, t } = message,
+			clientId = socket['id'],
+			clientType = socket['type']
 
-		console.log(`recieved message from ${clientType} (${clientId || 'unknown'}) over ws`, op, t)
+	console.log(`recieved message from ${clientType} (${clientId || 'unknown'}) over ws`, op, t)
 
-		if (op === 2) {
-				try {
-						console.log('Verifying Token')
-						const { token, type } = d, { id } = verify(token, process.env.PORTAL_KEY) as { id: string }
-						console.log('Checking Type')
-						if (ACCEPTABLE_CLIENT_TYPES.indexOf(type) === -1) return socket.close(1013)
-						console.log('Saving variables')
+	if (op === 2) {
+		try {
+			console.log('Verifying Token')
+			const { token, type } = d, { id } = verify(token, process.env.PORTAL_KEY) as { id: string }
+			console.log('Checking Type')
+			if (ACCEPTABLE_CLIENT_TYPES.indexOf(type) === -1) return socket.close(1013)
+			console.log('Saving variables')
 
-						socket['id'] = id
-						socket['type'] = type
+			socket['id'] = id
+			socket['type'] = type
 
-						if (type === 'portal') {
-								const portal = await new Portal().load(id)
+			if (type === 'portal') {
+				const portal = await new Portal().load(id)
 
-								if (process.env.ENABLE_JANUS === 'true') {
-										const mountpoint = await new Mountpoint().load('Portal', id)
+				if (process.env.ENABLE_JANUS === 'true') {
+					const mountpoint = await new Mountpoint().load('Portal', id)
 
-										if (mountpoint.audioport === 0 || mountpoint.videoport === 0) {
-												closePortal(id)
-												throw new Error(`Janus mountpoint for portal: ${id}, was not created successfully. Aborting.`)
-										}
+					if (mountpoint.audioport === 0 || mountpoint.videoport === 0) {
+						Services.portalManager.closePortal(id)
+						throw new Error(`Janus mountpoint for portal: ${id}, was not created successfully. Aborting.`)
+					}
 
-										socket.send(JSON.stringify(
-												{
-														op: 10,
-														d: {
-																audioport: mountpoint.audioport,
-																videoport: mountpoint.videoport,
-																janusAddress: mountpoint.janusIp
-														}
-												}
-										))
-								} else {
-										socket.send(JSON.stringify(
-												{
-														op: 20,
-														d: {
-																apertureAddress: process.env.APERTURE_URL,
-																aperturePort: process.env.APERTURE_PORT
-														}
-												}
-										))
-								}
-
-								await portal.updateStatus('open')
+					socket.send(JSON.stringify(
+						{
+							op: 10,
+							d: {
+								audioport: mountpoint.audioport,
+								videoport: mountpoint.videoport,
+								janusAddress: mountpoint.janusIp
+							}
 						}
-
-						console.log('recieved auth from', type, id)
-				} catch (error) {
-						socket.close(1013)
-						console.error('authentication error', error)
+					))
+				} else {
+					socket.send(JSON.stringify(
+						{
+							op: 20,
+							d: {
+								apertureAddress: process.env.APERTURE_URL,
+								aperturePort: process.env.APERTURE_PORT
+							}
+						}
+					))
 				}
+
+				await portal.updateStatus('open')
+			}
+
+			console.log('recieved auth from', type, id)
+		} catch (error) {
+			socket.close(1013)
+			console.error('authentication error', error)
 		}
+	}
 }
 export default handleMessage
 
