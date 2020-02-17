@@ -1,47 +1,43 @@
-import { CoreV1Api, V1Node, V1Pod } from '@kubernetes/client-node'
+import { V1Pod } from '@kubernetes/client-node'
 
 import Portal from '../models/portal'
 
 import { createClient } from '../config/providers/kubernetes.config'
 import { IPortalDriver } from './IPortalDriver'
 
-type Nodemap = {
-	[key in string]: number
-}
-
 export default class KubernetesDriver implements IPortalDriver {
 	public driverName = 'kubernetes'
+	private client = createClient()
 
-	public fetchAvailableNode = (client?: CoreV1Api) => new Promise<V1Node>(async (resolve, reject) => {
-		if (!client)
-			client = createClient()
-		if (!client)
+	public fetchAvailableNode = () => new Promise<string>(async (resolve, reject) => {
+		if (!this.client)
 			throw new Error('The Kubernetes driver configuration is incorrect. This may be due to improper ENV variables, please check')
 
 		try {
-			const { body: nodes } = await client.listNode()
-
-			const nodeMap = this.getNodemap(nodes.items)
-			if (Object.keys(nodeMap).length === 0)
+			const nodeMap = await this.getNodemap()
+			if (nodeMap.size === 0)
 				resolve(null)
 
-			const recommendedNodeName = Object.keys(nodeMap).reduce((a, b) =>
-				nodeMap[a] < nodeMap[b] ? a : b
-			), recommendedNode = nodes.items.find(node =>
-				node.metadata.name === recommendedNodeName
-			)
+			let currentNode
+			nodeMap.forEach((value, key) => {
+				if (!currentNode)
+					currentNode = key
+				if (value < nodeMap.get(currentNode))
+					currentNode = key
+			})
 
-			resolve(recommendedNode)
+			resolve(currentNode)
 		} catch (error) {
 			reject(error)
 		}
 	})
 
 	public createPortal = (portal: Portal) => new Promise(async (resolve, reject) => {
-		const client = createClient()
-		if (!client) throw new Error('The Kubernetes driver configuration is incorrect. This may be due to improper ENV variables, please check')
+		if (!this.client)
+			throw new Error('The Kubernetes driver configuration is incorrect. This may be due to improper ENV variables, please check')
 
 		const name = `portal-${portal.id}`
+		const recommendedNode = await this.fetchAvailableNode()
 
 		try {
 			const _pod = {
@@ -56,6 +52,7 @@ export default class KubernetesDriver implements IPortalDriver {
 					namespace: 'portals'
 				},
 				spec: {
+					nodeName: recommendedNode,
 					volumes: [{
 						name: 'dshm',
 						emptyDir: {
@@ -90,7 +87,7 @@ export default class KubernetesDriver implements IPortalDriver {
 					],
 					imagePullSecrets: [{ name: process.env.K8S_PORTAL_IMAGE_PULL_SECRET }]
 				}
-			} as V1Pod, { body: pod } = await client.createNamespacedPod('portals', _pod)
+			} as V1Pod, { body: pod } = await this.client.createNamespacedPod('portals', _pod)
 
 			console.log(`opened portal with name ${pod.metadata.name} in namespace ${pod.metadata.namespace}`)
 			resolve()
@@ -102,7 +99,8 @@ export default class KubernetesDriver implements IPortalDriver {
 
 	public destroyPortal = async (portal: Portal) => {
 		const client = createClient()
-		if (!client) throw new Error('The Kubernetes driver is incorrect. This may be due to improper ENV variables, please try again')
+		if (!client)
+			throw new Error('The Kubernetes driver is incorrect. This may be due to improper ENV variables, please try again')
 
 		const podName = `portal-${portal.id}`
 
@@ -115,20 +113,36 @@ export default class KubernetesDriver implements IPortalDriver {
 		}
 	}
 
-	public isSpaceAvailable = async () => !!(await this.fetchAvailableNode())
+	public isSpaceAvailable = () => new Promise<boolean>(async resolve => {
+		const availableNode = await this.fetchAvailableNode()
+		if (availableNode)
+			resolve(true)
+		else
+			resolve(false)
+	})
 
-	private getNodemap = (nodes: V1Node[]) => {
-		const map: Nodemap = {}
+	private getNodemap = async () => {
+		if (!this.client)
+			throw new Error('The Kubernetes driver configuration is incorrect. This may be due to improper ENV variables, please check')
 
-		nodes.forEach(node =>
-			map[node.metadata.name] ? map[node.metadata.name] += 1 : map[node.metadata.name] = 1
-		)
+		const nodeMap = new Map<string, number>()
 
-		nodes.forEach(({ metadata: { name } }) => {
-			if (map[name] >= parseInt(process.env.PORTAL_NODE_LIMIT))
-				delete map[name]
+		const { body: pods } = await this.client.listNamespacedPod('portals', 'true')
+		pods.items.forEach(item => {
+			const currentNodePods = nodeMap.get(item.spec.nodeName)
+			if (!currentNodePods) {
+				nodeMap.set(item.spec.nodeName, 1)
+			} else {
+				nodeMap.set(item.spec.nodeName, currentNodePods + 1)
+			}
 		})
 
-		return map
+		nodeMap.forEach((value, key) => {
+			if (value >= parseInt(process.env.PORTAL_NODE_LIMIT)) {
+				nodeMap.delete(key)
+			}
+		})
+
+		return nodeMap
 	}
 }
