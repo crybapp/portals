@@ -5,7 +5,7 @@ import * as chai from 'chai'
 import 'mocha'
 import client from '../../src/config/redis.config'
 import IPortal from '../../src/models/portal/defs'
-import PortalRequest from '../../src/models/request/defs'
+import PortalRequest, { IQueueMovementEvent } from '../../src/models/queue/defs'
 import { QueueService } from '../../src/services/PortalQueue.service'
 
 const emptyCreationFunc = (portalRequest: PortalRequest) => new Promise<IPortal>(resolve => {
@@ -165,5 +165,27 @@ describe('start', () => {
 
 		queueService.start()
 		queueService.queueNewPortalRequest('123')
+	})
+})
+
+describe('createQueueMovementEvent', () => {
+	const queueService = new QueueService(emptyCreationFunc)
+	it('Does create correct event', async () =>{
+		queueService["dequeuedRoomsSinceLastMovement"].push('111')
+		queueService["lastQueueMovementLength"] = 1
+		queueService.queueNewPortalRequest('222')
+		queueService.queueNewPortalRequest('333')
+
+		const expectedObject: IQueueMovementEvent = {
+			lastMovementLength: 1,
+			currentQueueLength: 2,
+			dequeuedRoomIds: ['111'],
+			roomIdsInQueue: ['222', '333']
+		}
+
+		const movementObject = await queueService["createQueueMovementEvent"]()
+
+		chai.expect(movementObject).deep.equals(expectedObject)
+		client.del(queueService['queueChannel'])
 	})
 })
