@@ -1,6 +1,6 @@
 import Mountpoint from '../models/mountpoint'
 import Portal from '../models/portal'
-import PortalRequest from '../models/request/defs'
+import PortalRequest from '../models/queue/defs'
 
 import { IPortalDriver } from '../drivers/IPortalDriver'
 import { createJanusStreamingMountpoint, destroyJanusStramingMountpoint } from '../drivers/janus.driver'
