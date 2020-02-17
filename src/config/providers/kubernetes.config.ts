@@ -8,6 +8,5 @@ export const createClient = () => {
 	else
 		config.loadFromDefault()
 
-	const api = config.makeApiClient(CoreV1Api)
-	return api
+	return config.makeApiClient(CoreV1Api)
 }

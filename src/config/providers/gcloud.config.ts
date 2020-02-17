@@ -1,7 +1,7 @@
-import { GoogleAuth } from 'google-auth-library'
+import { GoogleAuth, JWTInput } from 'google-auth-library'
 
-export const fetchCredentials = () => {
-	let credentials: any = process.env.GOOGLE_APPLICATION_CREDENTIALS
+export const fetchCredentials = (): string => {
+	let credentials: string = process.env.GOOGLE_APPLICATION_CREDENTIALS
 	if (!credentials) return null
 
 	try {
@@ -18,8 +18,7 @@ export const createClient = () => {
 	if (!credentials) return null
 
 	const scopes = 'https://www.googleapis.com/auth/cloud-platform',
-		auth = new GoogleAuth({ scopes }),
-		client = auth.fromJSON(credentials)
+		auth = new GoogleAuth({ scopes })
 
-	return client
+	return auth.fromJSON(credentials as JWTInput)
 }

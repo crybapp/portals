@@ -120,9 +120,9 @@ Temporary Items
 # Compiled JS
 dist
 
-#In Use Packages
+# In Use Packages
 package-lock.json
-yarn.lock
 
-#Editor Configs
+# Editor Configs
 .vscode
+.idea
