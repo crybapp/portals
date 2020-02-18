@@ -16,7 +16,7 @@ app.post('/create', authenticate, async (req, res) => {
 	}
 	
 	const positionInQueue = await Services.queueService.queueNewPortalRequest(roomId)
-	res.send(positionInQueue)
+	res.status(200).send({queuePosition: positionInQueue})
 })
 
 app.delete('/:id', authenticate, (req, res) => {
