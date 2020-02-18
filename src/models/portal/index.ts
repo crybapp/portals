@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { sign } from 'jsonwebtoken'
 
-import PortalRequest from '../request/defs'
+import PortalRequest from '../queue/defs'
 
 import StoredPortal from '../../schemas/portal.schema'
 import IPortal from './defs'
@@ -28,12 +28,27 @@ export default class Portal {
 		public load = (id: string) => new Promise<Portal>(async (resolve, reject) => {
 				try {
 						const doc = await StoredPortal.findOne({ 'info.id': id })
-						if (!doc) throw new Error('PortalNotFound')
+						if (!doc)
+							throw new Error('PortalNotFound')
 
 						this.setup(doc)
 
 						resolve(this)
 				} catch (error) {
+						reject(error)
+				}
+		})
+
+		public loadByRoomID = (roomId: string) => new Promise<Portal>(async (resolve, reject) => {
+				try {
+						const doc = await StoredPortal.findOne({ 'info.room': roomId })
+						if (!doc)
+							resolve(null)
+
+						this.setup(doc)
+
+						resolve(this)
+				} catch(error) {
 						reject(error)
 				}
 		})
