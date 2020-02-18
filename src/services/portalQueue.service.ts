@@ -105,10 +105,6 @@ export class QueueService  {
 	 */
 	private getQueueLength = () => client.llen(this.queueChannel)
 
-	private getAllRoomsInQueue = () => new Promise(async resolve =>{
-
-	})
-
 	/**
 	 * getNextPortalRequest will return the next Portal request in the queue
 	 * if there are no items in the queue, getNextPortalRequest will wait till there are.

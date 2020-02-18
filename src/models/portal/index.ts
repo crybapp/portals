@@ -28,7 +28,8 @@ export default class Portal {
 		public load = (id: string) => new Promise<Portal>(async (resolve, reject) => {
 				try {
 						const doc = await StoredPortal.findOne({ 'info.id': id })
-						if (!doc) throw new Error('PortalNotFound')
+						if (!doc)
+							throw new Error('PortalNotFound')
 
 						this.setup(doc)
 
@@ -41,7 +42,8 @@ export default class Portal {
 		public loadByRoomID = (roomId: string) => new Promise<Portal>(async (resolve, reject) => {
 				try {
 						const doc = await StoredPortal.findOne({ 'info.room': roomId })
-						if(!doc) resolve(null)
+						if (!doc)
+							resolve(null)
 
 						this.setup(doc)
 

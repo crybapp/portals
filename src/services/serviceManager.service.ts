@@ -11,8 +11,6 @@ import HetznerCloudDriver from '../drivers/hetznercloud.driver'
 import KubernetesDriver from '../drivers/kubernetes.driver'
 import ManualDriver from '../drivers/manual.driver'
 
-
-
 const portalManager = new PortalManager()
 
 portalManager.registerDriver(new DigitalOceanDriver())
@@ -37,7 +35,6 @@ queueService.registerQueueMovementEvent((movementEvent: IQueueMovementEvent) => 
 }))
 
 queueService.start()
-
 
 export default {
 	portalManager,

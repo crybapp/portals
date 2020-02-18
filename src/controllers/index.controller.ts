@@ -10,13 +10,11 @@ app.post('/create', authenticate, async (req, res) => {
 	const { roomId } = req.body
 
 	const portal = await new Portal().loadByRoomID(roomId)
-	if(portal) {
-		res.sendStatus(202)
-		return
-	}
+	if (portal)
+		return res.sendStatus(202)
 	
 	const positionInQueue = await Services.queueService.queueNewPortalRequest(roomId)
-	res.status(200).send({queuePosition: positionInQueue})
+	res.status(200).send({ queuePosition: positionInQueue })
 })
 
 app.delete('/:id', authenticate, (req, res) => {
