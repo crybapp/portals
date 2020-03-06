@@ -2,6 +2,7 @@ import { Redis } from 'ioredis'
 import client, { createRedisClient } from '../config/redis.config'
 import IPortalRequest, { IQueueMovementEvent } from '../models/queue/defs'
 import { generateFlake } from '../utils/generate.utils'
+import sleep from '../utils/sleep.utils'
 
 type AvailabilityFunc = () => Promise<boolean>
 type PortalCreationFunc = (PortalRequest: IPortalRequest) => Promise<unknown>
@@ -18,7 +19,7 @@ export class QueueService  {
 	private queueMovementEvents: Array<QueueMovementEvent> = []
 	private lastQueueMovementLength: number = 0
 	private dequeuedRoomsSinceLastMovement: Array<string> = []
-	private timeOfLastMovement: number
+	private timeOfLastMovement: number = 0
 
 	constructor(
 		portalCreateFn: PortalCreationFunc,
@@ -48,6 +49,7 @@ export class QueueService  {
 			roomId,
 			receivedAt: Date.now()
 		}
+		console.log(`queueing new portal request: ${portalRequest}`)
 		return client.rpush(this.queueChannel, JSON.stringify(portalRequest))
 	}
 
@@ -59,7 +61,11 @@ export class QueueService  {
 
 			const requestedPortal = await this.getNextPortalRequest()
 			this.dequeuedRoomsSinceLastMovement.push(requestedPortal.roomId)
-			this.portalCreateFn(requestedPortal)
+
+			console.log(`Creating new portal: ${requestedPortal}`)
+			this.portalCreateFn(requestedPortal).catch(error => {
+				console.error(`Error creating portal: ${error}`)
+			})
 			if(Date.now() - this.timeOfLastMovement > 15000) {
 				this.triggerQueueMovementEvent()
 			}
@@ -73,6 +79,7 @@ export class QueueService  {
 	}
 
 	private createQueueMovementEvent = () => new Promise<IQueueMovementEvent>(async (resolve) => {
+		console.log("Starting new queue movement event.")
 		const fullQueueString: Promise<string[]> = client.lrange(this.queueChannel, 0, -1)
 		let queueLength: Promise<number> = this.getQueueLength()
 
@@ -89,6 +96,7 @@ export class QueueService  {
 		this.dequeuedRoomsSinceLastMovement = []
 		this.lastQueueMovementLength = await queueLength
 
+		console.log(`Resolving movement event with: ${movementEvent}`)
 		resolve(movementEvent)
 	})
 
@@ -118,13 +126,24 @@ export class QueueService  {
 	/**
 	 * Wait for availability will wait until availabilityFn returns true
 	 */
-	private waitForAvailability = async () => {
-		const available = false
+	private waitForAvailability = () => new Promise(async (resolve, reject) =>{
+		let available = false
 		while (!available) {
-			if (!this.availabilityFn || await this.availabilityFn())
-				return
+			if(!this.availabilityFn) {
+				available = true
+				continue
+			}
 
-			await setTimeout(() => true, 500)
+			const isAvailable = await this.availabilityFn()
+		
+			if (isAvailable === true) {
+				available = true
+				continue
+			}
+			
+			await sleep(500)
 		}
-	}
+
+		resolve()
+	})
 }

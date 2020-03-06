@@ -5,6 +5,7 @@ import { IPortalDriver } from './IPortalDriver'
 
 export default class DockerDriver implements IPortalDriver {
 	public driverName = 'docker'
+	public testAvailable = false;
 
 	public createPortal = (portal: Portal) => new Promise(async (resolve, reject) => {
 		const client = createClient(),
@@ -23,7 +24,9 @@ export default class DockerDriver implements IPortalDriver {
 			})
 			await container.start()
 
-			await portal.updateStatus('starting')
+			await portal.updateStatus('starting').catch(error => {
+				console.error(`Error updating portal status: ${error}`)
+			})
 
 			console.log(`opened portal with name ${name}`)
 			resolve()
@@ -52,7 +55,7 @@ export default class DockerDriver implements IPortalDriver {
 		}
 	}
 
-	public isSpaceAvailable = () => new Promise<boolean>(resolve => {
+	public isSpaceAvailable = () => new Promise<boolean>((resolve, reject) => {
 		resolve(true)
 	})
 }
