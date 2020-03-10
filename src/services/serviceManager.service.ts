@@ -22,7 +22,7 @@ portalManager.registerDriver(new ManualDriver())
 
 const queueService = new QueueService(portalManager.createPortal, portalManager.getCurrentAvailabilityFn())
 queueService.registerQueueMovementEvent((movementEvent: IQueueMovementEvent) => new Promise(async (resolve, reject) => {
-	Axios.post(`${process.env.API_URL}/internal/portal`, movementEvent, {
+	Axios.post(`${process.env.API_URL}/internal/queue`, movementEvent, {
 		headers: {
 			authorization: `Valve ${sign({}, process.env.API_KEY)}`
 		}
