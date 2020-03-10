@@ -80,6 +80,7 @@ export class QueueService  {
 
 	private createQueueMovementEvent = () => new Promise<IQueueMovementEvent>(async (resolve) => {
 		console.log("Starting new queue movement event.")
+    
 		const fullQueueString: Promise<string[]> = client.lrange(this.queueChannel, 0, -1)
 		let queueLength: Promise<number> = this.getQueueLength()
 
