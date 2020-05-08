@@ -114,14 +114,12 @@ export default class Portal {
 								}
 						})
 
-						let janusId = -1
-						let janusIp = '0.0.0.0'
+						let janusId, janusIp
 
 						if (status === 'open' && process.env.ENABLE_JANUS === 'true') {
 								const mountpoint = await new Mountpoint().load('Portal', this.id)
 								janusId = mountpoint.janusId
 								janusIp = mountpoint.janusIp
-
 						}
 
 						/*
