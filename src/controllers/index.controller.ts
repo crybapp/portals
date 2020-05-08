@@ -14,7 +14,11 @@ app.post('/create', authenticate, async (req, res) => {
 		return res.sendStatus(202)
 
 	const positionInQueue = await Services.queueService.queueNewPortalRequest(roomId)
-	res.status(200).send({ queuePosition: positionInQueue })
+	res.status(200).send({ 
+		currentPositionInQueue: positionInQueue, 
+		currentQueueLength: positionInQueue, 
+		dequeuedLength: 0  
+	})
 })
 
 app.delete('/:id', authenticate, async (req, res) => {
