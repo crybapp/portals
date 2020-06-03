@@ -126,3 +126,6 @@ package-lock.json
 # Editor Configs
 .vscode
 .idea
+
+yarn.lock
+package-lock.json
