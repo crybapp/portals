@@ -10,6 +10,7 @@ export default class DockerDriver implements IPortalDriver {
 	public createPortal = (portal: Portal) => new Promise(async (resolve, reject) => {
 		const client = createClient(),
 			name = `portal-${portal.id}`
+
 		if (!client)
 			throw new Error('The Docker driver configuration is incorrect. This may be due to improper ENV variables, please check')
 
@@ -19,7 +20,7 @@ export default class DockerDriver implements IPortalDriver {
 				hostname: name,
 				image: process.env.DOCKER_IMAGE || 'cryb/portal',
 				autoRemove: true,
-				networkMode: 'bridge',
+				networkMode: process.env.DOCKER_NETWORK || 'bridge',
 				shmSize: parseInt(process.env.DOCKER_SHM_SIZE || '1024') * 1048576
 			})
 			await container.start()
