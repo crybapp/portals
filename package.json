@@ -2,8 +2,8 @@
   "name": "@cryb/portals",
   "version": "1.0.0",
   "description": "The microservice that queues, creates and closes VM instances",
-  "main": "index.js",
-  "repository": "https://github.com/crybapp/portals",
+  "main": "dist/index.js",
+  "repository": "https://github.com/crybapp/portals.git",
   "author": "JeDaYoshi <hi@jeda.im>",
   "license": "MIT",
   "scripts": {
