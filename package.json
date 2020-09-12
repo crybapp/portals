@@ -15,7 +15,7 @@
     "lint": "tslint src/**/*.ts{,x}"
   },
   "dependencies": {
-    "@google-cloud/compute": "^1.2.0",
+    "@google-cloud/compute": "^2.1.0",
     "@kubernetes/client-node": "^0.11.1",
     "axios": "^0.19.2",
     "biguint-format": "^1.0.1",
