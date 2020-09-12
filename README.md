@@ -150,3 +150,7 @@ Done! Enjoy using `@cryb/portals` with the cloud provider of your preferred choi
 ## Questions / Issues
 
 If you have an issues with `@cryb/portals`, please either open a GitHub issue, contact a maintainer or join the [Cryb Discord Server](https://discord.gg/xdhEgD5) and ask in `#tech-support`.
+
+## License
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fcrybapp%2Fportals.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fcrybapp%2Fportals?ref=badge_large)
