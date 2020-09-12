@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@google-cloud/compute": "^2.1.0",
-    "@kubernetes/client-node": "^0.11.1",
+    "@kubernetes/client-node": "^0.12.0",
     "axios": "^0.19.2",
     "biguint-format": "^1.0.1",
     "dockerode": "^3.1.0",
