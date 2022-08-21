@@ -38,6 +38,7 @@ const createMountpointRequestBody = (transactionId, options) => {
 			audiopt: 111,
 			videortpmap: 'VP8/90000',
 			audiortpmap: 'opus/48000/2',
+			audiofmtp: 'sprop-maxcapturerate=48000;sprop-stereo=1',
 			videoport: 0,
 			audioport: 0
 		}
