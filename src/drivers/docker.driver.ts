@@ -19,9 +19,12 @@ export default class DockerDriver implements IPortalDriver {
 				name,
 				hostname: name,
 				image: process.env.DOCKER_IMAGE || 'cryb/portal',
-				autoRemove: true,
-				networkMode: process.env.DOCKER_NETWORK || 'bridge',
-				shmSize: parseInt(process.env.DOCKER_SHM_SIZE || '1024') * 1048576
+				hostConfig: {
+					autoRemove: true,
+					networkMode: process.env.DOCKER_NETWORK || 'bridge',
+					shmSize: parseInt(process.env.DOCKER_SHM_SIZE || '1024') * 1048576
+				},
+				cmd: ['--portalId', portal.id]
 			})
 			await container.start()
 
