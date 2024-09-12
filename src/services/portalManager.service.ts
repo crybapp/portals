@@ -26,10 +26,8 @@ export class PortalManager {
 
 		try {
 			const portal = await new Portal().create(request)
-			if (process.env.ENABLE_JANUS === 'true') {
-				const mountpoint = await new Mountpoint().create(portal)
-				createJanusStreamingMountpoint(mountpoint)
-			}
+			const mountpoint = await new Mountpoint().create(portal)
+			createJanusStreamingMountpoint(mountpoint)
 
 			this.selectedDriver.createPortal(portal)
 				.catch(() => this.closePortal(portal.id))
@@ -48,11 +46,9 @@ export class PortalManager {
 			const portal = await new Portal().load(portalId)
 			await portal.destroy()
 
-			if (process.env.ENABLE_JANUS === 'true') {
-				const mountpoint = await new Mountpoint().load('Portal', portalId)
-				destroyJanusStramingMountpoint(mountpoint)
-				await mountpoint.destroy()
-			}
+			const mountpoint = await new Mountpoint().load('Portal', portalId)
+			destroyJanusStramingMountpoint(mountpoint)
+			await mountpoint.destroy()
 
 			this.selectedDriver.destroyPortal(portal)
 

@@ -6,16 +6,18 @@ const ModelSchema = new Schema({
 				name: String,
 				room: String,
 				id: Number,
-				portalId: Number,
+				portalId: String,
 				janusId: Number,
-				janusIp: String,
 
 				createdAt: Number,
 				receivedAt: Number
 		},
 		stream: {
+				janusIp: String,
 				audioport: Number,
-				videoport: Number
+				audiortcpport: Number,
+				videoport: Number,
+				videortcpport: Number,
 		}
 })
 
