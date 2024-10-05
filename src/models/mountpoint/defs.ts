@@ -5,16 +5,18 @@ export default interface IMountpoint {
 				name: string
 				room: string
 				id: number
-				portalId: number
+				portalId: string
 				janusId: number
-				janusIp: string
 
 				createdAt: number
 				receivedAt: number
 		}
 		stream: {
+				janusIp: string
 				audioport: number
+				audiortcpport: number
 				videoport: number
+				videortcpport: number
 		}
 }
 

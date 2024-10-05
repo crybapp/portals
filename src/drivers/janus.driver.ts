@@ -5,8 +5,8 @@
 import axios, { AxiosResponse } from 'axios'
 import Mountpoint from '../models/mountpoint'
 
-const JANUS_HOSTNAME = process.env.JANUS_HOSTNAME
-const JANUS_PORT = process.env.JANUS_PORT
+const JANUS_URL = process.env.JANUS_URL || `http://${process.env.JANUS_HOSTNAME}:${process.env.JANUS_PORT}`
+const JANUS_STREAMING_IP = process.env.JANUS_STREAMING_IP || process.env.JANUS_HOSTNAME
 const JANUS_ADMIN_KEY = process.env.JANUS_STREAMING_ADMIN_KEY
 
 const createSessionRequestBody = (transactionId, options) => {
@@ -32,15 +32,30 @@ const createMountpointRequestBody = (transactionId, options) => {
 			request: 'create',
 			admin_key: JANUS_ADMIN_KEY,
 			type: 'rtp',
-			video: true,
-			audio: true,
-			videopt: 100,
-			audiopt: 111,
-			videortpmap: 'VP8/90000',
-			audiortpmap: 'opus/48000/2',
-			audiofmtp: 'sprop-maxcapturerate=48000;sprop-stereo=1',
-			videoport: 0,
-			audioport: 0
+			is_private: true,
+			threads: 1,
+			playoutdelay_ext: true,
+			media: [
+				{
+					type: 'audio',
+					mid: '101',
+					port: 0,
+					rtcpport: 0,
+					codec: 'opus',
+					pt: 101,
+					rtpmap: 'opus/48000/2',
+					fmtp: 'sprop-stereo=1'
+				},
+				{
+					type: 'video',
+					mid: '100',
+					port: 0,
+					rtcpport: 0,
+					codec: 'vp8',
+					pt: 100,
+					rtpmap: 'VP8/90000'
+				}
+			]
 		}
 	}
 }
@@ -117,7 +132,7 @@ const createJanusStreamingHandle = (url: string, sessionId: string) => new Promi
 
 export const createJanusStreamingMountpoint = (mountpoint: Mountpoint) => new Promise(async (resolve, reject) => {
 	try {
-		const janusUrl = `http://${JANUS_HOSTNAME}:${JANUS_PORT}/janus/`,
+		const janusUrl = `${JANUS_URL}/janus/`,
 			janusSessionId = await createJanusSession(janusUrl),
 			janusHandleId = await createJanusStreamingHandle(janusUrl, janusSessionId)
 
@@ -131,7 +146,14 @@ export const createJanusStreamingMountpoint = (mountpoint: Mountpoint) => new Pr
 		if (process.env.NODE_ENV === 'development')
 			console.log(streamInfo)
 
-		await mountpoint.updateStreamInfo(+streamInfo?.id, JANUS_HOSTNAME, +streamInfo?.audio_port, +streamInfo?.video_port)
+		await mountpoint.updateStreamInfo(
+			+streamInfo?.id,
+			JANUS_STREAMING_IP,
+			+streamInfo?.ports[0].port,
+			+streamInfo?.ports[0].rtcp_port,
+			+streamInfo?.ports[1].port,
+			+streamInfo?.ports[1].rtcp_port
+		)
 		resolve()
 	} catch (error) {
 		console.error(error)
@@ -141,7 +163,7 @@ export const createJanusStreamingMountpoint = (mountpoint: Mountpoint) => new Pr
 
 export const destroyJanusStramingMountpoint = (mountpoint: Mountpoint) => new Promise(async (resolve, reject) => {
 	try {
-		const janusUrl = `http://${mountpoint.janusIp}:${JANUS_PORT}/janus/`,
+		const janusUrl = `${JANUS_URL}/janus/`,
 			janusSessionId = await createJanusSession(janusUrl),
 			janusHandleId = await createJanusStreamingHandle(janusUrl, janusSessionId)
 

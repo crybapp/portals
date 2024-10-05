@@ -78,7 +78,7 @@ We recommend that you run the following services alongside `@cryb/portals`, but 
 
 * `@cryb/api`
 * `@cryb/web`
-* `@cryb/aperture`
+* Janus WebRTC Server
 
 You also need to install the required dependencies by running `yarn`.
 
@@ -94,7 +94,7 @@ Make sure that you have installed MongoDB and Redis, and they are both running l
 
 The command to start MongoDB is `mongod`, and the command to start Redis is `redis-server`.
 
-If you're developing a feature that requires the VM infrastructure, then make sure `@cryb/aperture` is running.
+If you're developing a feature that requires the VM infrastructure, then make sure Janus WebRTC server is running.
 
 #### Starting @cryb/portals
 

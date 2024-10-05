@@ -10,7 +10,7 @@ const sub = createRedisClient()
 
 export default (wss: Server) => {
 	sub.on('message', (channel, data) => {
-		console.log('recieved message on channel', channel, 'data', data)
+		//console.log('recieved message on channel', channel, 'data', data)
 
 		let json: IWSEvent
 		const clients = Array.from(wss.clients)

@@ -114,18 +114,17 @@ export default class Portal {
 								}
 						})
 
-						let janusId, janusIp
+						let janusId
 
-						if (status === 'open' && process.env.ENABLE_JANUS === 'true') {
+						if (status === 'open') {
 								const mountpoint = await new Mountpoint().load('Portal', this.id)
 								janusId = mountpoint.janusId
-								janusIp = mountpoint.janusIp
 						}
 
 						/*
 						 * Update API on status of portal
 						 */
-						await axios.put(`${process.env.API_URL}/internal/portal`, { id: this.id, status, janusId, janusIp }, {
+						await axios.put(`${process.env.API_URL}/internal/portal`, { id: this.id, status, janusId }, {
 								headers: {
 										authorization: `Valve ${sign({}, process.env.API_KEY)}`
 								}
